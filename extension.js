@@ -1,33 +1,51 @@
-
 const St = imports.gi.St;
 const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
+const ModalDialog = imports.ui.modalDialog;
+const Clutter = imports.gi.Clutter;
 
-let text, button;
+let entry, dialog, button, shown;
 
 function _hideHello() {
-    Main.uiGroup.remove_actor(text);
-    text = null;
+    Main.uiGroup.remove_actor(entry);
+    dialog.close();
+    dialog = null;
+    entry  = null;
 }
 
 function _showHello() {
-    if (!text) {
-        text = new St.Label({ style_class: 'helloworld-label', text: "Hello, world!" });
-        Main.uiGroup.add_actor(text);
+  if (!entry) {
+      entry = new St.Entry({ name:        "newTask",
+                             hint_text:   "New task...",
+                             track_hover: true,
+                             style_class: 'task-entry' });
+
+      global.log("Adding entry");
+  }
+
+  if (!dialog) {
+    dialog = new ModalDialog.ModalDialog();
+    dialog.contentLayout.add_actor(entry);
+    dialog.open();
+  }
+
+  entry.opacity = 255;
+
+  entry.grab_key_focus();
+
+  entry.connect('key-press-event', function(object, event) {
+    let symbol = event.get_key_symbol();
+
+    global.log(symbol);
+
+    if(symbol == Clutter.Escape) {
+      _hideHello();
     }
 
-    text.opacity = 255;
-
-    let monitor = Main.layoutManager.primaryMonitor;
-
-    text.set_position(Math.floor(monitor.width / 2 - text.width / 2),
-                      Math.floor(monitor.height / 2 - text.height / 2));
-
-    Tweener.addTween(text,
-                     { opacity: 0,
-                       time: 2,
-                       transition: 'easeOutQuad',
-                       onComplete: _hideHello });
+    if(symbol == Clutter.Return) {
+      _hideHello();
+    }
+  });
 }
 
 function init() {
