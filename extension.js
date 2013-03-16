@@ -3,6 +3,7 @@ const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
 const ModalDialog = imports.ui.modalDialog;
 const Clutter = imports.gi.Clutter;
+const Gio = imports.gi.Gio;
 
 let entry, dialog, button, shown;
 
@@ -33,16 +34,19 @@ function _showHello() {
 
   entry.grab_key_focus();
 
-  entry.connect('key-press-event', function(object, event) {
+  entry.connect('key-release-event', function(object, event) {
     let symbol = event.get_key_symbol();
-
-    global.log(symbol);
 
     if(symbol == Clutter.Escape) {
       _hideHello();
     }
 
     if(symbol == Clutter.Return) {
+      let file = Gio.file_new_for_path("todo.txt");
+      let stream = file.append_to(Gio.FileCreateFlags.NONE, null);
+
+      stream.write(entry.get_text() + "\n", null);
+      stream.close(null);
       _hideHello();
     }
   });
