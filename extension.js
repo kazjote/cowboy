@@ -4,8 +4,20 @@ const Tweener = imports.ui.tweener;
 const ModalDialog = imports.ui.modalDialog;
 const Clutter = imports.gi.Clutter;
 const Gio = imports.gi.Gio;
+const ExtensionUtils = imports.misc.extensionUtils;
+const GLib = imports.gi.GLib;
 
-let entry, dialog, button, shown;
+const Me = ExtensionUtils.getCurrentExtension();
+const Md5 = Me.imports.md5;
+window.md5 = Md5.md5;
+
+const Rtm = Me.imports.rtm;
+
+const AppKey = '7dfc8cb9f7985d712e355ee4526d5c88';
+const AppSecret = '5792b9b6adbc3847';
+
+
+let entry, dialog, button, shown, rtm;
 
 function _hideHello() {
   Main.uiGroup.remove_actor(entry);
@@ -14,14 +26,36 @@ function _hideHello() {
   entry  = null;
 }
 
+function _setToken(frob) {
+  rtm.get('rtm.auth.getToken', { frob: frob }, function(resp) {
+    if (resp.rsp.stat == 'ok') {
+      rtm.auth_token = resp.rsp.auth.token;
+    } else {
+      GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, function() {
+        _setToken(frob);
+      });
+    }
+  });
+}
+
+function _addEntry(content) {
+  rtm.get('rtm.timelines.create', {}, function(resp) {
+    if (resp.rsp.stat == 'ok') {
+      rtm.get('rtm.tasks.add', { timeline: resp.rsp.timeline, name: content, parse: 1 });
+    } else {
+      GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, function() {
+        _addEntry(content);
+      });
+    }
+  });
+}
+
 function _showHello() {
   if (!entry) {
     entry = new St.Entry({ name:        "newTask",
                            hint_text:   "New task...",
                            track_hover: true,
                            style_class: 'task-entry' });
-
-    global.log("Adding entry");
   }
 
   if (!dialog) {
@@ -42,11 +76,25 @@ function _showHello() {
     }
 
     if(symbol == Clutter.Return) {
-      let file = Gio.file_new_for_path("todo.txt");
-      let stream = file.append_to(Gio.FileCreateFlags.NONE, null);
+      // let file = Gio.file_new_for_path("todo.txt");
+      // let stream = file.append_to(Gio.FileCreateFlags.NONE, null);
 
-      stream.write(entry.get_text() + "\n", null);
-      stream.close(null);
+      // stream.write(entry.get_text() + "\n", null);
+      // stream.close(null);
+      if (!rtm.auth_token) {
+        log('Will get token');
+        rtm.get('rtm.auth.getFrob', {}, function(resp) {
+          let frob = resp.rsp.frob;
+          let authUrl = rtm.getAuthUrl(frob);
+          // TODO: Should display button here
+          log(authUrl);
+          _setToken(frob);
+
+          _addEntry(entry.get_text());
+        });
+      } else {
+        _addEntry(entry.get_text());
+      }
       _hideHello();
     }
   });
@@ -64,6 +112,8 @@ function init() {
 
   button.set_child(icon);
   button.connect('button-press-event', _showHello);
+
+  rtm = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
 }
 
 function enable() {
