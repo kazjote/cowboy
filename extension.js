@@ -76,26 +76,25 @@ function _showHello() {
     }
 
     if(symbol == Clutter.Return) {
-      // let file = Gio.file_new_for_path("todo.txt");
-      // let stream = file.append_to(Gio.FileCreateFlags.NONE, null);
+      let text = entry.get_text();
 
-      // stream.write(entry.get_text() + "\n", null);
-      // stream.close(null);
+      _hideHello();
+
       if (!rtm.auth_token) {
         log('Will get token');
         rtm.get('rtm.auth.getFrob', {}, function(resp) {
           let frob = resp.rsp.frob;
           let authUrl = rtm.getAuthUrl(frob);
-          // TODO: Should display button here
-          log(authUrl);
+
+          GLib.spawn_command_line_async("gnome-open '" + authUrl + "'");
+
           _setToken(frob);
 
-          _addEntry(entry.get_text());
+          _addEntry(text);
         });
       } else {
-        _addEntry(entry.get_text());
+        _addEntry(text);
       }
-      _hideHello();
     }
   });
 }
