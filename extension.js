@@ -6,6 +6,7 @@ const Clutter = imports.gi.Clutter;
 const Gio = imports.gi.Gio;
 const ExtensionUtils = imports.misc.extensionUtils;
 const GLib = imports.gi.GLib;
+const Lang = imports.lang;
 
 const Me = ExtensionUtils.getCurrentExtension();
 const Md5 = Me.imports.md5;
@@ -16,8 +17,31 @@ const Rtm = Me.imports.rtm;
 const AppKey = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
+let entry, dialog, button, shown, rtm, dbusNameId;
 
-let entry, dialog, button, shown, rtm;
+const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
+  <method name="open">
+  </method>
+</interface>;
+
+const DBusOpener = new Lang.Class({
+  Name: 'DBusOpener',
+
+  _init: function() {
+    this._impl = Gio.DBusExportedObject.wrapJSObject(DBusOpenerInterface, this);
+    this._impl.export(Gio.DBus.session, '/eu/kazjote/todo_lists/opener');
+  },
+
+  /*
+   * Invoke with:
+   * dbus-send --session --type=method_call --print-reply --dest=eu.kazjote.todo_lists.opener '/eu/kazjote/todo_lists/opener' 'eu.kazjote.todo_lists.opener.open'
+   */
+  open: function(args) {
+    _showHello();
+    return 0;
+  }
+});
+
 
 function _hideHello() {
   Main.uiGroup.remove_actor(entry);
@@ -31,7 +55,7 @@ function _setToken(frob) {
     if (resp.rsp.stat == 'ok') {
       rtm.auth_token = resp.rsp.auth.token;
     } else {
-      GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, function() {
+      GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, function() {
         _setToken(frob);
       });
     }
@@ -43,7 +67,7 @@ function _addEntry(content) {
     if (resp.rsp.stat == 'ok') {
       rtm.get('rtm.tasks.add', { timeline: resp.rsp.timeline, name: content, parse: 1 });
     } else {
-      GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, function() {
+      GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, function() {
         _addEntry(content);
       });
     }
@@ -113,12 +137,21 @@ function init() {
   button.connect('button-press-event', _showHello);
 
   rtm = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
+
+  new DBusOpener();
 }
 
 function enable() {
   Main.panel._rightBox.insert_child_at_index(button, 0);
+
+  dbusNameId = Gio.DBus.session.own_name('eu.kazjote.todo_lists.opener',
+    Gio.BusNameOwnerFlags.NONE,
+    function(name) { log("DBUS: obtained name"); },
+    function(name) { log("DBUS: lost name..."); });
 }
 
 function disable() {
   Main.panel._rightBox.remove_child(button);
+
+  Gio.DBus.session.unown_name(dbusNameId);
 }
