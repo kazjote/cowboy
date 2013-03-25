@@ -196,8 +196,7 @@ var RememberTheMilk = function (appKey, appSecret, permissions, format) {
             var soup = imports.gi.Soup;
 
             if (this.httpSession == null) {
-                // this.httpSession = new soup.SessionAsync();
-                this.httpSession = new soup.SessionSync();
+                this.httpSession = new soup.SessionAsync();
                 soup.Session.prototype.add_feature.call(
                     this.httpSession,
                     new soup.ProxyResolverDefault()
@@ -205,18 +204,13 @@ var RememberTheMilk = function (appKey, appSecret, permissions, format) {
             }
 
             var request = soup.Message.new('GET', requestUrl);
-            var message = this.httpSession.send_message(request);
 
-            log(request.response_body.data);
-
-            callback.call(this, JSON.parse(request.response_body.data));
-
-            // this.httpSession.queue_message(request, imports.lang.bind(this,
-            //     function(_httpSession, message) {
-            //         log('oh... here!');
-            //         callback.call(this, JSON.parse(request.response_body.data));
-            //     }
-            // ));
+            this.httpSession.queue_message(request, imports.lang.bind(this,
+                function(_httpSession, message) {
+                    log('Answer: ' + request.response_body.data);
+                    callback.call(this, JSON.parse(request.response_body.data));
+                }
+            ));
         } else {
             window[callbackName] = function (resp) {
                 callback.call(this, resp);
