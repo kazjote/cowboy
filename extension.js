@@ -17,7 +17,7 @@ const Rtm = Me.imports.rtm;
 const AppKey = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
-let entry, dialog, button, shown, rtm, dbusNameId;
+let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
   <method name="open">
@@ -137,17 +137,20 @@ function init() {
   button.connect('button-press-event', _showHello);
 
   rtm = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
+  dbusOpener = new DBusOpener();
+}
 
-  new DBusOpener();
+function connectDBus() {
+  dbusNameId = Gio.DBus.session.own_name('eu.kazjote.todo_lists.opener',
+    Gio.BusNameOwnerFlags.NONE,
+    function(name) { log("DBUS: obtained name"); },
+    function(name) { connectDBus(); });
 }
 
 function enable() {
   Main.panel._rightBox.insert_child_at_index(button, 0);
 
-  dbusNameId = Gio.DBus.session.own_name('eu.kazjote.todo_lists.opener',
-    Gio.BusNameOwnerFlags.NONE,
-    function(name) { log("DBUS: obtained name"); },
-    function(name) { log("DBUS: lost name..."); });
+  connectDBus();
 }
 
 function disable() {
