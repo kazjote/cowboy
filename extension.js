@@ -9,8 +9,10 @@ const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 
 const Me = ExtensionUtils.getCurrentExtension();
-const Md5 = Me.imports.md5;
-window.md5 = Md5.md5;
+
+window.md5 = function(str) {
+  return GLib.compute_checksum_for_string(GLib.ChecksumType.MD5, str, str.length);
+}
 
 const Rtm = Me.imports.rtm;
 
