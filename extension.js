@@ -9,9 +9,11 @@ const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 
 const Me = ExtensionUtils.getCurrentExtension();
+const Md5 = Me.imports.md5;
 
 window.md5 = function(str) {
-  return GLib.compute_checksum_for_string(GLib.ChecksumType.MD5, str, str.length);
+  // I tried glib md5 but it didn't work out
+  return Md5.hex_md5(str);
 }
 
 const Rtm = Me.imports.rtm;
