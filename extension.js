@@ -57,7 +57,9 @@ function _hideHello() {
 function _setToken(frob) {
   rtm.get('rtm.auth.getToken', { frob: frob }, function(resp) {
     if (resp.rsp.stat == 'ok') {
-      rtm.auth_token = resp.rsp.auth.token;
+      let token = resp.rsp.auth.token;
+      rtm.auth_token = token;
+      _save_token(token);
     } else {
       GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, function() {
         _setToken(frob);
@@ -76,6 +78,35 @@ function _addEntry(content) {
       });
     }
   });
+}
+
+function _save_token(token) {
+  let path = GLib.get_home_dir() + '/.todo_lists_rtm_token';
+  let file = Gio.File.new_for_path(path);
+
+  let stream = file.replace(null, false, null, null, null);
+
+  stream.write(token, null, null, null);
+  stream.close(null);
+}
+
+function _load_token() {
+  let path = GLib.get_home_dir() + '/.todo_lists_rtm_token';
+  let file = Gio.File.new_for_path(path);
+ 
+  try {
+    let stream = file.read(null, null);
+    let dstream = new Gio.DataInputStream({base_stream: stream});
+    let token = dstream.read_until('', null)[0];
+
+    stream.close(null);
+
+    return token;
+  } catch (e) {
+    log('Exception while reading file');
+    log(e)
+    return null;
+  }
 }
 
 function _showHello() {
@@ -108,7 +139,7 @@ function _showHello() {
 
       _hideHello();
 
-      if (!rtm.auth_token) {
+      if (!rtm.auth_token && !(rtm.auth_token = _load_token())) {
         log('Will get token');
         rtm.get('rtm.auth.getFrob', {}, function(resp) {
           let frob = resp.rsp.frob;
