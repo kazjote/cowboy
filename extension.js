@@ -17,11 +17,12 @@ window.md5 = function(str) {
 }
 
 const Rtm = Me.imports.rtm;
+const Authenticator2 = Me.imports.authenticator2;
 
 const AppKey = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
-let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener;
+let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
   <method name="open">
@@ -54,20 +55,6 @@ function _hideHello() {
   entry  = null;
 }
 
-function _setToken(frob) {
-  rtm.get('rtm.auth.getToken', { frob: frob }, function(resp) {
-    if (resp.rsp.stat == 'ok') {
-      let token = resp.rsp.auth.token;
-      rtm.auth_token = token;
-      _save_token(token);
-    } else {
-      GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, function() {
-        _setToken(frob);
-      });
-    }
-  });
-}
-
 function _addEntry(content) {
   rtm.get('rtm.timelines.create', {}, function(resp) {
     if (resp.rsp.stat == 'ok') {
@@ -78,35 +65,6 @@ function _addEntry(content) {
       });
     }
   });
-}
-
-function _save_token(token) {
-  let path = GLib.get_home_dir() + '/.todo_lists_rtm_token';
-  let file = Gio.File.new_for_path(path);
-
-  let stream = file.replace(null, false, null, null, null);
-
-  stream.write(token, null, null, null);
-  stream.close(null);
-}
-
-function _load_token() {
-  let path = GLib.get_home_dir() + '/.todo_lists_rtm_token';
-  let file = Gio.File.new_for_path(path);
- 
-  try {
-    let stream = file.read(null, null);
-    let dstream = new Gio.DataInputStream({base_stream: stream});
-    let token = dstream.read_until('', null)[0];
-
-    stream.close(null);
-
-    return token;
-  } catch (e) {
-    log('Exception while reading file');
-    log(e)
-    return null;
-  }
 }
 
 function _showHello() {
@@ -139,21 +97,9 @@ function _showHello() {
 
       _hideHello();
 
-      if (!rtm.auth_token && !(rtm.auth_token = _load_token())) {
-        log('Will get token');
-        rtm.get('rtm.auth.getFrob', {}, function(resp) {
-          let frob = resp.rsp.frob;
-          let authUrl = rtm.getAuthUrl(frob);
-
-          GLib.spawn_command_line_async("gnome-open '" + authUrl + "'");
-
-          _setToken(frob);
-
-          _addEntry(text);
-        });
-      } else {
+      authenticator.authorized(function() {
         _addEntry(text);
-      }
+      });
     }
   });
 }
@@ -172,6 +118,7 @@ function init() {
   button.connect('button-press-event', _showHello);
 
   rtm = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
+  authenticator = new Authenticator2.RtmAuthenticator(rtm);
   dbusOpener = new DBusOpener();
 }
 
