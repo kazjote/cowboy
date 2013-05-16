@@ -10,6 +10,7 @@ const RtmAuthenticator = new Lang.Class({
   _init: function(rtm) {
     this._queue = [];
     this._rtm   = rtm;
+    // TODO: load token from a file
   },
 
   authorized: function(job) {
@@ -112,3 +113,21 @@ const RtmAuthenticator = new Lang.Class({
 
 });
 
+/*
+ * Features:
+ *
+ * - Queueing few tasks and resuming all when user is authenticated
+ * - Authorizing user with browser
+ * - Saving and loading on startup key from file
+ *
+ * Covered usecases:
+ *
+ * - User has never entered key and adds a few new tasks
+ * - User enters the task but key got invalidated in the meantime
+ *
+ * Not covered usecases:
+ *
+ * - User has network problems
+ * - Token gets invalidated after authentication and before all queued tasks are sent
+ *
+ */
