@@ -17,7 +17,7 @@ window.md5 = function(str) {
 }
 
 const Rtm = Me.imports.rtm;
-const Authenticator2 = Me.imports.authenticator2;
+const Authenticator = Me.imports.authenticator;
 
 const AppKey = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
@@ -97,7 +97,7 @@ function _showHello() {
 
       _hideHello();
 
-      authenticator.authorized(function() {
+      authenticator.authenticated(function() {
         _addEntry(text);
       });
     }
@@ -118,7 +118,7 @@ function init() {
   button.connect('button-press-event', _showHello);
 
   rtm = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
-  authenticator = new Authenticator2.RtmAuthenticator(rtm);
+  authenticator = new Authenticator.RtmAuthenticator(rtm);
   dbusOpener = new DBusOpener();
 }
 

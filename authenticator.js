@@ -13,11 +13,11 @@ const RtmAuthenticator = new Lang.Class({
     // TODO: load token from a file
   },
 
-  authorized: function(job) {
+  authenticated: function(job) {
     this._queue.push(job);
 
     if(this._queue.length == 1) {
-      this._authorizeUser();
+      this._authenticateUser();
     }
   },
 
@@ -29,10 +29,10 @@ const RtmAuthenticator = new Lang.Class({
   },
 
   _displayAuthNotification: function() {
-    // requires frob and displays notification with a button to authorize
+    // requires frob and displays notification with a button to authenticate
     // 
-    // Runs also in the loop checking for succesful authorization.
-    // when authorization is done, notification is removed and queue is resumed
+    // Runs also in the loop checking for succesful authentication.
+    // when authentication is done, notification is removed and queue is resumed
     //
     // TODO: add recover from network problems
     // TODO: redisplay notification on notification close
@@ -43,7 +43,7 @@ const RtmAuthenticator = new Lang.Class({
       let notification = new MessageTray.Notification(source, "Test notification", "Banner");
 
       Main.messageTray.add(source);
-      notification.addButton('web-browser', 'Authorize');
+      notification.addButton('web-browser', 'Authenticate');
       notification.connect('action-invoked', Lang.bind(this, function() {
         GLib.spawn_command_line_async("gnome-open '" + authUrl + "'");
 
@@ -70,7 +70,7 @@ const RtmAuthenticator = new Lang.Class({
     }));
   },
 
-  _authorizeUser: function() {
+  _authenticateUser: function() {
     // pseudo code
     if(!this._rtm.auth_token) {
       this._displayAuthNotification();
