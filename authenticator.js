@@ -30,7 +30,9 @@ const RtmAuthenticator = new Lang.Class({
 
   _createNotification: function(frob, authUrl) {
     let source       = new MessageTray.SystemNotificationSource();
-    let notification = new MessageTray.Notification(source, "Test notification", "Banner");
+    let title        = "RememberTheMilk - authentication";
+    let banner       = "You need to authenticate to proceed";
+    let notification = new MessageTray.Notification(source, title, banner);
 
     notification.setResident(true);
     Main.messageTray.add(source);
