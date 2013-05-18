@@ -28,6 +28,29 @@ const RtmAuthenticator = new Lang.Class({
     this._queue = [];
   },
 
+  _createNotification: function(frob, authUrl) {
+    let source       = new MessageTray.SystemNotificationSource();
+    let notification = new MessageTray.Notification(source, "Test notification", "Banner");
+
+    notification.setResident(true);
+    Main.messageTray.add(source);
+    notification.addButton('web-browser', 'Authenticate');
+
+    notification.connect('action-invoked', Lang.bind(this, function() {
+      GLib.spawn_command_line_async("gnome-open '" + authUrl + "'");
+
+      this._continueWithCredentials(frob);
+    }));
+
+    notification.connect('destroy', Lang.bind(this, function(_, reason) {
+      if(this._queue.length > 0) {
+        this._createNotification(frob, authUrl);
+      }
+    }));
+
+    source.notify(notification);
+  },
+
   _displayAuthNotification: function() {
     // requires frob and displays notification with a button to authenticate
     // 
@@ -37,21 +60,11 @@ const RtmAuthenticator = new Lang.Class({
     // TODO: add recover from network problems
     // TODO: redisplay notification on notification close
     this._rtm.get('rtm.auth.getFrob', {}, Lang.bind(this, function(resp) {
-      let frob = resp.rsp.frob;
+      let frob    = resp.rsp.frob;
       let authUrl = this._rtm.getAuthUrl(frob);
-      let source       = new MessageTray.SystemNotificationSource();
-      let notification = new MessageTray.Notification(source, "Test notification", "Banner");
 
-      Main.messageTray.add(source);
-      notification.addButton('web-browser', 'Authenticate');
-      notification.connect('action-invoked', Lang.bind(this, function() {
-        GLib.spawn_command_line_async("gnome-open '" + authUrl + "'");
-
-        this._continueWithCredentials(frob);
-      }));
-      source.notify(notification);
+      this._createNotification(frob, authUrl)
     }));
-    log("displaying notification");
   },
 
   _continueWithCredentials: function(frob) {
