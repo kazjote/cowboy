@@ -7,6 +7,7 @@ const Gio = imports.gi.Gio;
 const ExtensionUtils = imports.misc.extensionUtils;
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
+const MessageTray = imports.ui.messageTray;
 
 const Me = ExtensionUtils.getCurrentExtension();
 const Md5 = Me.imports.md5;
@@ -22,7 +23,7 @@ const Authenticator = Me.imports.authenticator;
 const AppKey = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
-let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator;
+let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notificationSource;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
   <method name="open">
@@ -47,7 +48,6 @@ const DBusOpener = new Lang.Class({
   }
 });
 
-
 function _hideHello() {
   Main.uiGroup.remove_actor(entry);
   dialog.close();
@@ -56,14 +56,27 @@ function _hideHello() {
 }
 
 function _addEntry(content) {
-  rtm.get('rtm.timelines.create', {}, function(resp) {
-    if (resp.rsp.stat == 'ok') {
-      rtm.get('rtm.tasks.add', { timeline: resp.rsp.timeline, name: content, parse: 1 });
-    } else {
-      GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, function() {
-        _addEntry(content);
-      });
+
+  let addNotification = function(title, banner) {
+    if (!notificationSource) {
+      notificationSource = new MessageTray.SystemNotificationSource();
+      Main.messageTray.add(notificationSource);
     }
+
+    let notification = new MessageTray.Notification(notificationSource, title, banner);
+
+    notification.setResident(true);
+    notificationSource.notify(notification);
+  };
+
+  rtm.get('rtm.timelines.create', {}, function(resp) {
+    rtm.get('rtm.tasks.add', { timeline: resp.rsp.timeline, name: content, parse: 1 }, function(resp) {
+      if (resp.rsp.stat == 'ok') {
+        addNotification("Task successfully created", content);
+      } else {
+        addNotification("Failed to create the task", content);
+      }
+    });
   });
 }
 
