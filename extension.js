@@ -89,7 +89,12 @@ function _showHello() {
   }
 
   if (!dialog) {
+    let label = new St.Label({ name: 'newTaskLabel',
+                               style_class: 'task-label',
+                               text: 'New task' });
+
     dialog = new ModalDialog.ModalDialog();
+    dialog.contentLayout.add_actor(label);
     dialog.contentLayout.add_actor(entry);
     dialog.open();
   }
