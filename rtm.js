@@ -56,6 +56,16 @@ var RememberTheMilk = function (appKey, appSecret, permissions, format) {
     this.permissions = permissions;
     this.format = format;
 
+    this.checkCredentials = function(callbacks) {
+      this.get('rtm.auth.checkToken', {}, function(resp) {
+        if (resp.rsp.stat == 'ok') {
+          callbacks.success();
+        } else {
+          callbacks.failure();
+        }
+      });
+    },
+
     /**
 	 * Encodes request parameters into URL format 
 	 * 

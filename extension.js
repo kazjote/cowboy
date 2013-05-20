@@ -117,9 +117,9 @@ function init() {
   button.set_child(icon);
   button.connect('button-press-event', _showHello);
 
-  rtm = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
+  rtm           = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
   authenticator = new Authenticator.RtmAuthenticator(rtm);
-  dbusOpener = new DBusOpener();
+  dbusOpener    = new DBusOpener();
 }
 
 function connectDBus() {

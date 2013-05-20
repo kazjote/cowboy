@@ -10,6 +10,7 @@ const RtmAuthenticator = new Lang.Class({
   _init: function(rtm) {
     this._queue = [];
     this._rtm   = rtm;
+    this._rtm.auth_token = this._loadToken();
     // TODO: load token from a file
   },
 
@@ -98,7 +99,7 @@ const RtmAuthenticator = new Lang.Class({
   },
 
   _loadToken: function() {
-    let path = GLib.get_home_dir() + '/.todo_lists_this._rtm_token';
+    let path = GLib.get_home_dir() + '/.todo_lists';
     let file = Gio.File.new_for_path(path);
 
     try {
@@ -117,7 +118,7 @@ const RtmAuthenticator = new Lang.Class({
   },
 
   _saveToken: function(token) {
-    let path = GLib.get_home_dir() + '/.todo_lists_this._rtm_token';
+    let path = GLib.get_home_dir() + '/.todo_lists';
     let file = Gio.File.new_for_path(path);
 
     let stream = file.replace(null, false, null, null, null);
