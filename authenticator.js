@@ -57,8 +57,8 @@ const RtmAuthenticator = new Lang.Class({
   _displayAuthNotification: function() {
     // requires frob and displays notification with a button to authenticate
     // 
-    // Runs also in the loop checking for succesful authentication.
-    // when authentication is done, notification is removed and queue is resumed
+    // Checks also in the loop for succesful authentication.
+    // When authentication is done, notification is removed and queue is resumed
     //
     // TODO: add recover from network problems
     // TODO: redisplay notification on notification close
