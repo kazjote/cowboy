@@ -1,26 +1,25 @@
-const St = imports.gi.St;
-const Main = imports.ui.main;
-const Tweener = imports.ui.tweener;
-const ModalDialog = imports.ui.modalDialog;
-const Clutter = imports.gi.Clutter;
-const Gio = imports.gi.Gio;
+const St             = imports.gi.St;
+const Main           = imports.ui.main;
+const Tweener        = imports.ui.tweener;
+const ModalDialog    = imports.ui.modalDialog;
+const Clutter        = imports.gi.Clutter;
+const Gio            = imports.gi.Gio;
 const ExtensionUtils = imports.misc.extensionUtils;
-const GLib = imports.gi.GLib;
-const Lang = imports.lang;
-const MessageTray = imports.ui.messageTray;
+const GLib           = imports.gi.GLib;
+const Lang           = imports.lang;
+const MessageTray    = imports.ui.messageTray;
 
 const Me = ExtensionUtils.getCurrentExtension();
-const Md5 = Me.imports.md5;
 
 window.md5 = function(str) {
   // I tried glib md5 but it didn't work out
   return Md5.hex_md5(str);
 }
 
-const Rtm = Me.imports.rtm;
+const Rtm           = Me.imports.rtm;
 const Authenticator = Me.imports.authenticator;
 
-const AppKey = '7dfc8cb9f7985d712e355ee4526d5c88';
+const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
 let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notificationSource;

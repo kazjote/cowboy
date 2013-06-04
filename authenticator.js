@@ -62,6 +62,8 @@ const RtmAuthenticator = new Lang.Class({
     //
     // TODO: add recover from network problems
     // TODO: redisplay notification on notification close
+    this._rtm.auth_token = null;
+
     this._rtm.get('rtm.auth.getFrob', {}, Lang.bind(this, function(resp) {
       let frob    = resp.rsp.frob;
       let authUrl = this._rtm.getAuthUrl(frob);
@@ -79,7 +81,7 @@ const RtmAuthenticator = new Lang.Class({
 
         this._resumeQueue();
       } else {
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, Lang.bind(this, function() {
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, Lang.bind(this, function() {
           this._continueWithCredentials(frob);
         }));
       }
