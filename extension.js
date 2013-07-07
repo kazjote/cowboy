@@ -31,6 +31,8 @@ const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
 const DBusOpener = new Lang.Class({
     Name: 'DBusOpener',
 
+    //// Public methods ////
+
     _init: function() {
         this._impl = Gio.DBusExportedObject.wrapJSObject(DBusOpenerInterface, this);
         this._impl.export(Gio.DBus.session, '/eu/kazjote/todo_lists/opener');

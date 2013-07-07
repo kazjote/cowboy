@@ -8,6 +8,8 @@ const MessageTray = imports.ui.messageTray;
 const RtmAuthenticator = new Lang.Class({
     Name: 'RtmAuthenticator',
 
+    //// Public methods ////
+
     _init: function(rtm) {
         this._queue          = [];
         this._rtm            = rtm;
@@ -23,11 +25,34 @@ const RtmAuthenticator = new Lang.Class({
         }
     },
 
-    _resumeQueue: function() {
-        this._queue.forEach(function(job) {
-            job();
-        });
-        this._queue = [];
+    //// Private methods ////
+
+    _authenticateUser: function() {
+        if(!this._rtm.auth_token) {
+            this._displayAuthNotification();
+        } else {
+            this._rtm.checkCredentials({
+                success: Lang.bind(this, this._resumeQueue),
+                failure: Lang.bind(this, this._displayAuthNotification)
+            });
+        }
+    },
+
+    _continueWithCredentials: function(frob) {
+        this._rtm.get('rtm.auth.getToken', { frob: frob }, Lang.bind(this, function(resp) {
+            if (resp.rsp.stat == 'ok') {
+                let token            = resp.rsp.auth.token;
+                this._rtm.auth_token = token;
+
+                this._saveToken(token);
+
+                this._resumeQueue();
+            } else {
+                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, Lang.bind(this, function() {
+                    this._continueWithCredentials(frob);
+                }));
+            }
+        }));
     },
 
     _createNotification: function(frob, authUrl) {
@@ -73,34 +98,6 @@ const RtmAuthenticator = new Lang.Class({
         }));
     },
 
-    _continueWithCredentials: function(frob) {
-        this._rtm.get('rtm.auth.getToken', { frob: frob }, Lang.bind(this, function(resp) {
-            if (resp.rsp.stat == 'ok') {
-                let token            = resp.rsp.auth.token;
-                this._rtm.auth_token = token;
-
-                this._saveToken(token);
-
-                this._resumeQueue();
-            } else {
-                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, Lang.bind(this, function() {
-                    this._continueWithCredentials(frob);
-                }));
-            }
-        }));
-    },
-
-    _authenticateUser: function() {
-        if(!this._rtm.auth_token) {
-            this._displayAuthNotification();
-        } else {
-            this._rtm.checkCredentials({
-                success: Lang.bind(this, this._resumeQueue),
-                failure: Lang.bind(this, this._displayAuthNotification)
-            });
-        }
-    },
-
     _loadToken: function() {
         let path = GLib.get_home_dir() + '/.todo_lists';
         let file = Gio.File.new_for_path(path);
@@ -116,6 +113,13 @@ const RtmAuthenticator = new Lang.Class({
         } catch (e) {
             return null;
         }
+    },
+
+    _resumeQueue: function() {
+        this._queue.forEach(function(job) {
+            job();
+        });
+        this._queue = [];
     },
 
     _saveToken: function(token) {

@@ -10,6 +10,8 @@ const Md5 = Me.imports.md5;
 const RememberTheMilk = new Lang.Class({
     Name: 'RememberTheMilk',
 
+    //// Public methods ////
+
     _init: function(appKey, appSecret, permissions) {
         this._authUrl     = 'https://www.rememberthemilk.com/services/auth/';
         this._baseUrl     = 'https://api.rememberthemilk.com/services/rest/';
@@ -26,19 +28,6 @@ const RememberTheMilk = new Lang.Class({
                 callbacks.failure();
             }
         });
-    },
-
-    getAuthUrl: function(frob) {
-        let params = {
-            api_key: this.appKey,
-            perms: this._permissions
-        };
-
-        if (frob) {
-            params.frob = frob;
-        }
-
-        return this._authUrl + this._encodeUrlParams(params, true);
     },
 
     get: function(method, params, callback) {
@@ -77,6 +66,21 @@ const RememberTheMilk = new Lang.Class({
             }
         ));
     },
+
+    getAuthUrl: function(frob) {
+        let params = {
+            api_key: this.appKey,
+            perms: this._permissions
+        };
+
+        if (frob) {
+            params.frob = frob;
+        }
+
+        return this._authUrl + this._encodeUrlParams(params, true);
+    },
+
+    //// Private methods ////
 
     _encodeUrlParams: function(params, signed) {
         let paramString = '';
