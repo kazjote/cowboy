@@ -1,18 +1,20 @@
+/* Based on https://github.com/michaelday/rtm-js */
+
 const Lang           = imports.lang;
 const Soup           = imports.gi.Soup;
 const ExtensionUtils = imports.misc.extensionUtils;
 
-const Md5 = Me.imports.md5;
 const Me  = ExtensionUtils.getCurrentExtension();
+const Md5 = Me.imports.md5;
 
 const RememberTheMilk = new Lang.Class({
     Name: 'RememberTheMilk',
 
     _init: function(appKey, appSecret, permissions) {
-        this._authUrl         = 'https://www.rememberthemilk.com/services/auth/';
-        this._baseUrl         = 'https://api.rememberthemilk.com/services/rest/';
-        this._appKey            = appKey;
-        this._appSecret     = appSecret;
+        this._authUrl     = 'https://www.rememberthemilk.com/services/auth/';
+        this._baseUrl     = 'https://api.rememberthemilk.com/services/rest/';
+        this._appKey      = appKey;
+        this._appSecret   = appSecret;
         this._permissions = permissions;
     },
 
@@ -29,7 +31,7 @@ const RememberTheMilk = new Lang.Class({
     getAuthUrl: function(frob) {
         let params = {
             api_key: this.appKey,
-            perms:     this._permissions
+            perms: this._permissions
         };
 
         if (frob) {
@@ -42,7 +44,7 @@ const RememberTheMilk = new Lang.Class({
     get: function(method, params, callback) {
         if (!callback && typeof params == 'function') {
             callback = params;
-            params = {};
+            params   = {};
         }
 
         if (!callback) {

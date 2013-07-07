@@ -6,25 +6,25 @@ const GLib           = imports.gi.GLib;
 const Lang           = imports.lang;
 
 const Main        = imports.ui.main;
-const Me          = ExtensionUtils.getCurrentExtension();
 const MessageTray = imports.ui.messageTray;
 const ModalDialog = imports.ui.modalDialog;
 
+const Me            = ExtensionUtils.getCurrentExtension();
+const Rtm           = Me.imports.rtm;
+const Authenticator = Me.imports.authenticator;
+
 window.md5 = function(str) {
-    // I tried glib md5 but it didn't work out
+    // I tried glib md5 but it didn't work
     return Md5.hex_md5(str);
 }
 
-const Rtm                     = Me.imports.rtm;
-const Authenticator = Me.imports.authenticator;
-
-const AppKey        = '7dfc8cb9f7985d712e355ee4526d5c88';
+const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
 let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notificationSource;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
-    <method name="open">
+    <method name='open'>
     </method>
 </interface>;
 
@@ -50,7 +50,7 @@ function _hideHello() {
     Main.uiGroup.remove_actor(entry);
     dialog.close();
     dialog = null;
-    entry    = null;
+    entry  = null;
 }
 
 function _addEntry(content) {
@@ -80,16 +80,16 @@ function _addEntry(content) {
 
 function _showHello() {
     if (!entry) {
-        entry = new St.Entry({ name:                "newTask",
-                                                     hint_text:     "New task...",
-                                                     track_hover: true,
-                                                     style_class: 'task-entry' });
+        entry = new St.Entry({ name: 'newTask',
+                                      hint_text: "New task...",
+                                      track_hover: true,
+                                      style_class: 'task-entry' });
     }
 
     if (!dialog) {
         let label = new St.Label({ name: 'newTaskLabel',
-                                                             style_class: 'task-label',
-                                                             text: 'New task' });
+                                   style_class: 'task-label',
+                                   text: "New task" });
 
         dialog = new ModalDialog.ModalDialog();
         dialog.contentLayout.add_actor(label);
@@ -122,26 +122,26 @@ function _showHello() {
 
 function init() {
     button = new St.Bin({ style_class: 'panel-button',
-                                                reactive: true,
-                                                can_focus: true,
-                                                x_fill: true,
-                                                y_fill: false,
-                                                track_hover: true });
+                          reactive: true,
+                          can_focus: true,
+                          x_fill: true,
+                          y_fill: false,
+                          track_hover: true });
     let icon = new St.Icon({ icon_name: 'system-run-symbolic',
-                                                     style_class: 'system-status-icon' });
+                             style_class: 'system-status-icon' });
 
     button.set_child(icon);
     button.connect('button-press-event', _showHello);
 
-    rtm                     = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
+    rtm           = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
     authenticator = new Authenticator.RtmAuthenticator(rtm);
-    dbusOpener        = new DBusOpener();
+    dbusOpener    = new DBusOpener();
 }
 
 function connectDBus() {
     dbusNameId = Gio.DBus.session.own_name('eu.kazjote.todo_lists.opener',
         Gio.BusNameOwnerFlags.NONE,
-        function(name) { log("DBUS: obtained name"); },
+        function(name) { },
         function(name) { connectDBus(); });
 }
 

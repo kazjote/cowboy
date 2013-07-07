@@ -12,14 +12,14 @@
  * the server-side, but the defaults work in most cases.
  */
 var hexcase = 0;     /* hex output format. 0 - lowercase; 1 - uppercase                */
-var b64pad    = "";    /* base-64 pad character. "=" for strict RFC compliance     */
+var b64pad    = '';    /* base-64 pad character. '=' for strict RFC compliance     */
 
 /*
  * These are the functions you'll usually want to call
  * They take string arguments and return either hex or base-64 encoded strings
  */
-function hex_md5(s)        { return rstr2hex(rstr_md5(str2rstr_utf8(s))); }
-function b64_md5(s)        { return rstr2b64(rstr_md5(str2rstr_utf8(s))); }
+function hex_md5(s) { return rstr2hex(rstr_md5(str2rstr_utf8(s))); }
+function b64_md5(s) { return rstr2b64(rstr_md5(str2rstr_utf8(s))); }
 function any_md5(s, e) { return rstr2any(rstr_md5(str2rstr_utf8(s)), e); }
 function hex_hmac_md5(k, d)
     { return rstr2hex(rstr_hmac_md5(str2rstr_utf8(k), str2rstr_utf8(d))); }
@@ -33,7 +33,7 @@ function any_hmac_md5(k, d, e)
  */
 function md5_vm_test()
 {
-    return hex_md5("abc").toLowerCase() == "900150983cd24fb0d6963f7d28e17f72";
+    return hex_md5('abc').toLowerCase() == '900150983cd24fb0d6963f7d28e17f72';
 }
 
 /*
@@ -69,8 +69,8 @@ function rstr_hmac_md5(key, data)
 function rstr2hex(input)
 {
     try { hexcase } catch(e) { hexcase=0; }
-    var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
-    var output = "";
+    var hex_tab = hexcase ? '0123456789ABCDEF' : '0123456789abcdef';
+    var output = '';
     var x;
     for(var i = 0; i < input.length; i++)
     {
@@ -87,8 +87,8 @@ function rstr2hex(input)
 function rstr2b64(input)
 {
     try { b64pad } catch(e) { b64pad=''; }
-    var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    var output = "";
+    var tab = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    var output = '';
     var len = input.length;
     for(var i = 0; i < len; i += 3)
     {
@@ -145,7 +145,7 @@ function rstr2any(input, encoding)
     }
 
     /* Convert the remainders to the output string */
-    var output = "";
+    var output = '';
     for(i = remainders.length - 1; i >= 0; i--)
         output += encoding.charAt(remainders[i]);
 
@@ -158,7 +158,7 @@ function rstr2any(input, encoding)
  */
 function str2rstr_utf8(input)
 {
-    var output = "";
+    var output = '';
     var i = -1;
     var x, y;
 
@@ -197,7 +197,7 @@ function str2rstr_utf8(input)
  */
 function str2rstr_utf16le(input)
 {
-    var output = "";
+    var output = '';
     for(var i = 0; i < input.length; i++)
         output += String.fromCharCode( input.charCodeAt(i)                & 0xFF,
                                                                     (input.charCodeAt(i) >>> 8) & 0xFF);
@@ -206,7 +206,7 @@ function str2rstr_utf16le(input)
 
 function str2rstr_utf16be(input)
 {
-    var output = "";
+    var output = '';
     for(var i = 0; i < input.length; i++)
         output += String.fromCharCode((input.charCodeAt(i) >>> 8) & 0xFF,
                                                                      input.charCodeAt(i)                & 0xFF);
@@ -232,7 +232,7 @@ function rstr2binl(input)
  */
 function binl2rstr(input)
 {
-    var output = "";
+    var output = '';
     for(var i = 0; i < input.length * 32; i += 8)
         output += String.fromCharCode((input[i>>5] >>> (i % 32)) & 0xFF);
     return output;

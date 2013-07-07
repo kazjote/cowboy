@@ -9,8 +9,8 @@ const RtmAuthenticator = new Lang.Class({
     Name: 'RtmAuthenticator',
 
     _init: function(rtm) {
-        this._queue = [];
-        this._rtm     = rtm;
+        this._queue          = [];
+        this._rtm            = rtm;
         this._rtm.auth_token = this._loadToken();
         // TODO: load token from a file
     },
@@ -31,17 +31,17 @@ const RtmAuthenticator = new Lang.Class({
     },
 
     _createNotification: function(frob, authUrl) {
-        let source             = new MessageTray.SystemNotificationSource();
-        let title                = "RememberTheMilk - authentication";
-        let banner             = "You need to authenticate to proceed";
+        let source       = new MessageTray.SystemNotificationSource();
+        let title        = "RememberTheMilk - authentication";
+        let banner       = "You need to authenticate to proceed";
         let notification = new MessageTray.Notification(source, title, banner);
 
         notification.setResident(true);
         Main.messageTray.add(source);
-        notification.addButton('web-browser', 'Authenticate');
+        notification.addButton('web-browser', "Authenticate");
 
         notification.connect('action-invoked', Lang.bind(this, function() {
-            GLib.spawn_command_line_async("gnome-open '" + authUrl + "'");
+            GLib.spawn_command_line_async('gnome-open \'' + authUrl + '\'');
 
             this._continueWithCredentials(frob);
         }));
@@ -66,7 +66,7 @@ const RtmAuthenticator = new Lang.Class({
         this._rtm.auth_token = null;
 
         this._rtm.get('rtm.auth.getFrob', {}, Lang.bind(this, function(resp) {
-            let frob        = resp.rsp.frob;
+            let frob    = resp.rsp.frob;
             let authUrl = this._rtm.getAuthUrl(frob);
 
             this._createNotification(frob, authUrl)
@@ -76,8 +76,9 @@ const RtmAuthenticator = new Lang.Class({
     _continueWithCredentials: function(frob) {
         this._rtm.get('rtm.auth.getToken', { frob: frob }, Lang.bind(this, function(resp) {
             if (resp.rsp.stat == 'ok') {
-                let token = resp.rsp.auth.token;
+                let token            = resp.rsp.auth.token;
                 this._rtm.auth_token = token;
+
                 this._saveToken(token);
 
                 this._resumeQueue();
@@ -90,7 +91,6 @@ const RtmAuthenticator = new Lang.Class({
     },
 
     _authenticateUser: function() {
-        // pseudo code
         if(!this._rtm.auth_token) {
             this._displayAuthNotification();
         } else {
@@ -114,8 +114,6 @@ const RtmAuthenticator = new Lang.Class({
 
             return token;
         } catch (e) {
-            log('Exception while reading file');
-            log(e)
             return null;
         }
     },
