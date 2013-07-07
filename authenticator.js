@@ -1,8 +1,9 @@
-const Lang = imports.lang;
-const Gio = imports.gi.Gio;
+const Gio  = imports.gi.Gio;
 const GLib = imports.gi.GLib;
+const Lang = imports.lang;
+
+const Main        = imports.ui.main;
 const MessageTray = imports.ui.messageTray;
-const Main = imports.ui.main;
 
 const RtmAuthenticator = new Lang.Class({
     Name: 'RtmAuthenticator',

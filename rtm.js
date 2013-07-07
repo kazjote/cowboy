@@ -1,8 +1,9 @@
-const Lang                     = imports.lang;
-const Soup                     = imports.gi.Soup;
+const Lang           = imports.lang;
+const Soup           = imports.gi.Soup;
 const ExtensionUtils = imports.misc.extensionUtils;
-const Me                         = ExtensionUtils.getCurrentExtension();
-const Md5                        = Me.imports.md5;
+
+const Md5 = Me.imports.md5;
+const Me  = ExtensionUtils.getCurrentExtension();
 
 const RememberTheMilk = new Lang.Class({
     Name: 'RememberTheMilk',

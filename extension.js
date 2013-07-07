@@ -1,15 +1,14 @@
-const St                         = imports.gi.St;
-const Main                     = imports.ui.main;
-const Tweener                = imports.ui.tweener;
-const ModalDialog        = imports.ui.modalDialog;
-const Clutter                = imports.gi.Clutter;
-const Gio                        = imports.gi.Gio;
+const St             = imports.gi.St;
+const Clutter        = imports.gi.Clutter;
+const Gio            = imports.gi.Gio;
 const ExtensionUtils = imports.misc.extensionUtils;
-const GLib                     = imports.gi.GLib;
-const Lang                     = imports.lang;
-const MessageTray        = imports.ui.messageTray;
+const GLib           = imports.gi.GLib;
+const Lang           = imports.lang;
 
-const Me = ExtensionUtils.getCurrentExtension();
+const Main        = imports.ui.main;
+const Me          = ExtensionUtils.getCurrentExtension();
+const MessageTray = imports.ui.messageTray;
+const ModalDialog = imports.ui.modalDialog;
 
 window.md5 = function(str) {
     // I tried glib md5 but it didn't work out
