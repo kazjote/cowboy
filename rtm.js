@@ -1,120 +1,120 @@
-const Lang           = imports.lang;
-const Soup           = imports.gi.Soup;
+const Lang                     = imports.lang;
+const Soup                     = imports.gi.Soup;
 const ExtensionUtils = imports.misc.extensionUtils;
-const Me             = ExtensionUtils.getCurrentExtension();
-const Md5            = Me.imports.md5;
+const Me                         = ExtensionUtils.getCurrentExtension();
+const Md5                        = Me.imports.md5;
 
 const RememberTheMilk = new Lang.Class({
-  Name: 'RememberTheMilk',
+    Name: 'RememberTheMilk',
 
-  _init: function(appKey, appSecret, permissions) {
-    this._authUrl     = 'https://www.rememberthemilk.com/services/auth/';
-    this._baseUrl     = 'https://api.rememberthemilk.com/services/rest/';
-    this._appKey      = appKey;
-    this._appSecret   = appSecret;
-    this._permissions = permissions;
-  },
+    _init: function(appKey, appSecret, permissions) {
+        this._authUrl         = 'https://www.rememberthemilk.com/services/auth/';
+        this._baseUrl         = 'https://api.rememberthemilk.com/services/rest/';
+        this._appKey            = appKey;
+        this._appSecret     = appSecret;
+        this._permissions = permissions;
+    },
 
-  checkCredentials: function(callbacks) {
-    this.get('rtm.auth.checkToken', {}, function(resp) {
-      if (resp.rsp.stat == 'ok') {
-        callbacks.success();
-      } else {
-        callbacks.failure();
-      }
-    });
-  },
+    checkCredentials: function(callbacks) {
+        this.get('rtm.auth.checkToken', {}, function(resp) {
+            if (resp.rsp.stat == 'ok') {
+                callbacks.success();
+            } else {
+                callbacks.failure();
+            }
+        });
+    },
 
-  getAuthUrl: function(frob) {
-    let params = {
-      api_key: this.appKey,
-      perms:   this._permissions
-    };
+    getAuthUrl: function(frob) {
+        let params = {
+            api_key: this.appKey,
+            perms:     this._permissions
+        };
 
-    if (frob) {
-      params.frob = frob;
-    }
+        if (frob) {
+            params.frob = frob;
+        }
 
-    return this._authUrl + this._encodeUrlParams(params, true);
-  },
+        return this._authUrl + this._encodeUrlParams(params, true);
+    },
 
-  get: function(method, params, callback) {
-    if (!callback && typeof params == 'function') {
-      callback = params;
-      params = {};
-    }
+    get: function(method, params, callback) {
+        if (!callback && typeof params == 'function') {
+            callback = params;
+            params = {};
+        }
 
-    if (!callback) {
-      callback = function () {};
-    }
+        if (!callback) {
+            callback = function () {};
+        }
 
-    params.method = method;
+        params.method = method;
 
-    if (this.auth_token) {
-      params.auth_token = this.auth_token;
-    }
+        if (this.auth_token) {
+            params.auth_token = this.auth_token;
+        }
 
-    let requestUrl = this._baseUrl + this._encodeUrlParams(params, true);
+        let requestUrl = this._baseUrl + this._encodeUrlParams(params, true);
 
-    if (this._httpSession == null) {
-      this._httpSession = new Soup.SessionAsync();
-      Soup.Session.prototype.add_feature.call(
-        this._httpSession,
-        new Soup.ProxyResolverDefault()
-      );
-    }
+        if (this._httpSession == null) {
+            this._httpSession = new Soup.SessionAsync();
+            Soup.Session.prototype.add_feature.call(
+                this._httpSession,
+                new Soup.ProxyResolverDefault()
+            );
+        }
 
-    var request = Soup.Message.new('GET', requestUrl);
-    // log('Request: ' + requestUrl);
+        var request = Soup.Message.new('GET', requestUrl);
+        // log('Request: ' + requestUrl);
 
-    this._httpSession.queue_message(request, imports.lang.bind(this,
-      function(_httpSession, message) {
-        // log('Answer: ' + request.response_body.data);
-        callback.call(this, JSON.parse(request.response_body.data));
-      }
-    ));
-  },
+        this._httpSession.queue_message(request, imports.lang.bind(this,
+            function(_httpSession, message) {
+                // log('Answer: ' + request.response_body.data);
+                callback.call(this, JSON.parse(request.response_body.data));
+            }
+        ));
+    },
 
-  _encodeUrlParams: function(params, signed) {
-    let paramString = '';
-    let count = 0;
+    _encodeUrlParams: function(params, signed) {
+        let paramString = '';
+        let count = 0;
 
-    params.format  = 'json';
-    params.api_key = this._appKey;
+        params.format    = 'json';
+        params.api_key = this._appKey;
 
-    // Encode the parameter keys and values
-    for (let key in params) {
-      if (count == 0) {
-        paramString += '?' + key + '=' + encodeURIComponent(params[key]);
-      } else {
-        paramString += '&' + key + '=' + encodeURIComponent(params[key]);
-      }
+        // Encode the parameter keys and values
+        for (let key in params) {
+            if (count == 0) {
+                paramString += '?' + key + '=' + encodeURIComponent(params[key]);
+            } else {
+                paramString += '&' + key + '=' + encodeURIComponent(params[key]);
+            }
 
-      count++;
-    }
+            count++;
+        }
 
-    // Append an auth signature if needed
-    if (signed) {
-      paramString += this._generateSig(params);
-    }
+        // Append an auth signature if needed
+        if (signed) {
+            paramString += this._generateSig(params);
+        }
 
-    return paramString;
-  },
+        return paramString;
+    },
 
-  _generateSig: function(params) {
-    let signature = '';
-    let signatureUrl = '&api_sig=';
+    _generateSig: function(params) {
+        let signature = '';
+        let signatureUrl = '&api_sig=';
 
-    let keys = Object.keys(params);
-    keys.sort();
+        let keys = Object.keys(params);
+        keys.sort();
 
-    for (let i = 0; i < keys.length; i++) {
-      signature += keys[i] + params[keys[i]];
-    }
+        for (let i = 0; i < keys.length; i++) {
+            signature += keys[i] + params[keys[i]];
+        }
 
-    signature = this._appSecret + signature;
-    signatureUrl += Md5.hex_md5(signature);
+        signature = this._appSecret + signature;
+        signatureUrl += Md5.hex_md5(signature);
 
-    return signatureUrl;
-  },
+        return signatureUrl;
+    },
 });
