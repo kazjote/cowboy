@@ -43,12 +43,12 @@ const DBusOpener = new Lang.Class({
      * dbus-send --session --type=method_call --print-reply --dest=eu.kazjote.todo_lists.opener '/eu/kazjote/todo_lists/opener' 'eu.kazjote.todo_lists.opener.open'
      */
     open: function(args) {
-        _showHello();
+        _showDialog();
         return 0;
     }
 });
 
-function _hideHello() {
+function _hideDialog() {
     Main.uiGroup.remove_actor(entry);
     dialog.close();
     dialog = null;
@@ -80,7 +80,7 @@ function _addEntry(content) {
     });
 }
 
-function _showHello() {
+function _showDialog() {
     if (!entry) {
         entry = new St.Entry({ name: 'newTask',
                                       hint_text: "New task...",
@@ -107,13 +107,13 @@ function _showHello() {
         let symbol = event.get_key_symbol();
 
         if(symbol == Clutter.Escape) {
-            _hideHello();
+            _hideDialog();
         }
 
         if(symbol == Clutter.Return) {
             let text = entry.get_text();
 
-            _hideHello();
+            _hideDialog();
 
             authenticator.authenticated(function() {
                 _addEntry(text);
@@ -133,7 +133,7 @@ function init() {
                              style_class: 'system-status-icon' });
 
     button.set_child(icon);
-    button.connect('button-press-event', _showHello);
+    button.connect('button-press-event', _showDialog);
 
     rtm           = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
     authenticator = new Authenticator.RtmAuthenticator(rtm);
