@@ -12,6 +12,7 @@ const ModalDialog = imports.ui.modalDialog;
 const Me            = ExtensionUtils.getCurrentExtension();
 const Rtm           = Me.imports.rtm;
 const Authenticator = Me.imports.authenticator;
+const Notifier      = Me.imports.notifier;
 
 window.md5 = function(str) {
     // I tried glib md5 but it didn't work
@@ -21,7 +22,7 @@ window.md5 = function(str) {
 const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
-let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notificationSource;
+let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notifier;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
     <method name='open'>
@@ -57,24 +58,13 @@ function _hideDialog() {
 
 function _addEntry(content) {
 
-    let addNotification = function(title, banner) {
-        if (!notificationSource) {
-            notificationSource = new MessageTray.SystemNotificationSource();
-            Main.messageTray.add(notificationSource);
-        }
-
-        let notification = new MessageTray.Notification(notificationSource, title, banner);
-
-        notification.setResident(true);
-        notificationSource.notify(notification);
-    };
-
     rtm.get('rtm.timelines.create', {}, function(resp) {
-        rtm.get('rtm.tasks.add', { timeline: resp.rsp.timeline, name: content, parse: 1 }, function(resp) {
+        let options = { timeline: resp.rsp.timeline, name: content, parse: 1 };
+        rtm.get('rtm.tasks.add', options, function(resp) {
             if (resp.rsp.stat == 'ok') {
-                addNotification("Task successfully created", content);
+                notifier.notify("Task successfully created", content);
             } else {
-                addNotification("Failed to create the task", content);
+                notifier.notify("Failed to create the task", content);
             }
         });
     });
@@ -141,8 +131,9 @@ function init() {
     button.connect('button-press-event', _showDialog);
 
     rtm           = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
-    authenticator = new Authenticator.RtmAuthenticator(rtm);
     dbusOpener    = new DBusOpener();
+    notifier      = new Notifier.Notifier();
+    authenticator = new Authenticator.RtmAuthenticator(rtm, notifier);
 }
 
 function connectDBus() {
