@@ -129,7 +129,12 @@ function init() {
                           x_fill: true,
                           y_fill: false,
                           track_hover: true });
-    let icon = new St.Icon({ icon_name: 'system-run-symbolic',
+
+    var theme = imports.gi.Gtk.IconTheme.get_default();
+    let icon_dir = Me.dir.get_child('icons');
+    theme.append_search_path(icon_dir.get_path());
+
+    let icon = new St.Icon({ icon_name: 'rtm-symbolic',
                              style_class: 'system-status-icon' });
 
     button.set_child(icon);

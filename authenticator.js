@@ -1,6 +1,7 @@
 const Gio  = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
+const St   = imports.gi.St;
 
 const Main        = imports.ui.main;
 const MessageTray = imports.ui.messageTray;
@@ -11,9 +12,10 @@ const RtmAuthenticator = new Lang.Class({
     //// Public methods ////
 
     _init: function(rtm) {
-        this._queue          = [];
-        this._rtm            = rtm;
-        this._rtm.auth_token = this._loadToken();
+        this._queue               = [];
+        this._rtm                 = rtm;
+        this._rtm.auth_token      = this._loadToken();
+        this._notificationSource = null;
         // TODO: load token from a file
     },
 
@@ -44,6 +46,11 @@ const RtmAuthenticator = new Lang.Class({
                 let token            = resp.rsp.auth.token;
                 this._rtm.auth_token = token;
 
+                if (this._authNotification) {
+                    this._authNotification.destroy();
+                    this._authNotification = null;
+                }
+
                 this._saveToken(token);
 
                 this._resumeQueue();
@@ -56,28 +63,29 @@ const RtmAuthenticator = new Lang.Class({
     },
 
     _createNotification: function(frob, authUrl) {
-        let source       = new MessageTray.SystemNotificationSource();
-        let title        = "RememberTheMilk - authentication";
-        let banner       = "You need to authenticate to proceed";
-        let notification = new MessageTray.Notification(source, title, banner);
+        if (!this._notificationSource) {
+            this._notificationSource = new MessageTray.Source('RTM', 'rtm-symbolic');
+            Main.messageTray.add(this._notificationSource);
+        }
+        let title  = "RememberTheMilk - authentication";
+        let banner = "You need to authenticate to proceed";
+        let icon   = new St.Icon({ icon_name: 'rtm-symbolic' });
 
-        notification.setResident(true);
-        Main.messageTray.add(source);
-        notification.addButton('web-browser', "Authenticate");
+        this._authNotification = new MessageTray.Notification(this._notificationSource,
+                                                                  title,
+                                                                  banner,
+                                                                  { icon: icon });
 
-        notification.connect('action-invoked', Lang.bind(this, function() {
+        this._authNotification.setResident(true);
+        this._authNotification.addButton('web-browser', "Authenticate");
+
+        this._authNotification.connect('action-invoked', Lang.bind(this, function() {
             GLib.spawn_command_line_async('gnome-open \'' + authUrl + '\'');
 
             this._continueWithCredentials(frob);
         }));
 
-        notification.connect('destroy', Lang.bind(this, function(_, reason) {
-            if(this._queue.length > 0) {
-                this._createNotification(frob, authUrl);
-            }
-        }));
-
-        source.notify(notification);
+        this._notificationSource.notify(this._authNotification);
     },
 
     _displayAuthNotification: function() {
