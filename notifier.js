@@ -20,11 +20,8 @@ const Notifier = new Lang.Class({
             Main.messageTray.add(this._notificationSource);
         }
 
-        let icon   = new St.Icon({ icon_name: 'rtm-symbolic' });
-        let notification = new MessageTray.Notification(this._notificationSource,
-                                                        title,
-                                                        banner,
-                                                        { icon: icon });
+        let notification = new MessageTray.Notification(this._notificationSource, title, banner);
+
         if (configurationCallback) {
             configurationCallback(notification);
         }

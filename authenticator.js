@@ -121,7 +121,7 @@ const RtmAuthenticator = new Lang.Class({
         let path = GLib.get_home_dir() + '/.todo_lists';
         let file = Gio.File.new_for_path(path);
 
-        let stream = file.replace(null, false, null, null, null);
+        let stream = file.replace(null, null, Gio.FileCreateFlags.NONE, null);
 
         stream.write(token, null, null, null);
         stream.close(null);
