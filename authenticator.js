@@ -14,6 +14,7 @@ const RtmAuthenticator = new Lang.Class({
         this._rtm               = rtm;
         this._rtm.auth_token    = this._loadToken();
         this._authNotification  = null;
+        this._timeout_id        = null;
     },
 
     authenticated: function(job) {
@@ -22,6 +23,10 @@ const RtmAuthenticator = new Lang.Class({
         if(this._queue.length == 1) {
             this._authenticateUser();
         }
+    },
+
+    close: function() {
+      if(this._timeout_id) { GLib.source_remove(this._timeout_id); }
     },
 
     //// Private methods ////
@@ -38,6 +43,8 @@ const RtmAuthenticator = new Lang.Class({
     },
 
     _continueWithCredentials: function(frob) {
+        global.log("Checking for valid credentials");
+
         this._rtm.get('rtm.auth.getToken', { frob: frob }, Lang.bind(this, function(resp) {
             if (resp.rsp.stat == 'ok') {
                 let token            = resp.rsp.auth.token;
@@ -52,9 +59,12 @@ const RtmAuthenticator = new Lang.Class({
 
                 this._resumeQueue();
             } else {
-                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, Lang.bind(this, function() {
-                    this._continueWithCredentials(frob);
-                }));
+                if(!this._timeout_id) { // Prevent multiple checking loops from running
+                    this._timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, Lang.bind(this, function() { // TODO: remove with source_remove
+                        this._timeout_id = null;
+                        this._continueWithCredentials(frob);
+                    }));
+                }
             }
         }));
     },

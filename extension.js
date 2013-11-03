@@ -46,6 +46,10 @@ const DBusOpener = new Lang.Class({
     open: function(args) {
         _showDialog();
         return 0;
+    },
+
+    close: function() {
+      this._impl.unexport();
     }
 });
 
@@ -112,7 +116,14 @@ function _showDialog() {
     });
 }
 
-function init() {
+function connectDBus() {
+    dbusNameId = Gio.DBus.session.own_name('eu.kazjote.todo_lists.opener',
+        Gio.BusNameOwnerFlags.NONE,
+        function(name) { },
+        function(name) { connectDBus(); });
+}
+
+function enable() {
     button = new St.Bin({ style_class: 'panel-button',
                           reactive: true,
                           can_focus: true,
@@ -134,16 +145,7 @@ function init() {
     dbusOpener    = new DBusOpener();
     notifier      = new Notifier.Notifier();
     authenticator = new Authenticator.RtmAuthenticator(rtm, notifier);
-}
 
-function connectDBus() {
-    dbusNameId = Gio.DBus.session.own_name('eu.kazjote.todo_lists.opener',
-        Gio.BusNameOwnerFlags.NONE,
-        function(name) { },
-        function(name) { connectDBus(); });
-}
-
-function enable() {
     Main.panel._rightBox.insert_child_at_index(button, 0);
 
     connectDBus();
@@ -152,5 +154,7 @@ function enable() {
 function disable() {
     Main.panel._rightBox.remove_child(button);
 
+    dbusOpener.close();
+    authenticator.close();
     Gio.DBus.session.unown_name(dbusNameId);
 }
