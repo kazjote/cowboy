@@ -54,7 +54,6 @@ const DBusOpener = new Lang.Class({
 });
 
 function _hideDialog() {
-    Main.uiGroup.remove_actor(entry);
     dialog.close();
     dialog = null;
     entry  = null;

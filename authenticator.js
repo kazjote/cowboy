@@ -43,8 +43,6 @@ const RtmAuthenticator = new Lang.Class({
     },
 
     _continueWithCredentials: function(frob) {
-        global.log("Checking for valid credentials");
-
         this._rtm.get('rtm.auth.getToken', { frob: frob }, Lang.bind(this, function(resp) {
             if (resp.rsp.stat == 'ok') {
                 let token            = resp.rsp.auth.token;
