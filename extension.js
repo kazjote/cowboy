@@ -22,7 +22,7 @@ window.md5 = function(str) {
 const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
-let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notifier;
+let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notifier, taskList;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
     <method name='open'>
@@ -81,18 +81,37 @@ function _showDialog() {
                                       style_class: 'task-entry' });
     }
 
+    if (!taskList) {
+      taskList = new St.ScrollView({ style_class: 'task-list' });
+    }
+
     if (!dialog) {
         let label = new St.Label({ name: 'newTaskLabel',
                                    style_class: 'task-label',
                                    text: "New task" });
 
         dialog = new ModalDialog.ModalDialog();
-        dialog.contentLayout.add_actor(label);
-        dialog.contentLayout.add_actor(entry);
+        dialog.contentLayout.add(label);
+        dialog.contentLayout.add(entry);
+
+        dialog.contentLayout.add(taskList, { x_fill: true, y_fill: true });
+
+        let boxLayout = new St.BoxLayout({ vertical: true });
+        taskList.add_actor(boxLayout);
+
+        let children = boxLayout.get_children();
+        for ( let i = 0; i < children.length; i += 1 ) {
+            boxLayout.remove_actor(children[i]);
+        }
+
+        authenticator.authenticated(function() {
+            let actionLabel = new St.Label({ text: "Here I am!" });
+
+            boxLayout.add_actor(actionLabel);
+        });
+
         dialog.open();
     }
-
-    entry.opacity = 255;
 
     entry.grab_key_focus();
 
