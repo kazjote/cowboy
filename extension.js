@@ -57,6 +57,7 @@ function _hideDialog() {
     dialog.close();
     dialog = null;
     entry  = null;
+    taskList = null;
 }
 
 function _addEntry(content) {
