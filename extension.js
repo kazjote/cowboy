@@ -61,7 +61,6 @@ function _hideDialog() {
 }
 
 function _addEntry(content) {
-
     rtm.get('rtm.timelines.create', {}, function(resp) {
         let options = { timeline: resp.rsp.timeline, name: content, parse: 1 };
         rtm.get('rtm.tasks.add', options, function(resp) {
@@ -106,9 +105,27 @@ function _showDialog() {
         }
 
         authenticator.authenticated(function() {
-            let actionLabel = new St.Label({ text: "Here I am!" });
+            rtm.get('rtm.tasks.getList', { filter: 'status:incomplete' }, function(resp) {
+                global.log('getList status: ' + resp.rsp.stat);
 
-            boxLayout.add_actor(actionLabel);
+                if(resp.rsp.stat == 'ok') {
+                    let lists = resp.rsp.tasks.list;
+
+                    for(let i = 0; i < lists.length; i += 1) {
+
+                        let taskSeries = lists[i].taskseries;
+
+                        for(let j = 0; j < taskSeries.length; j += 1) {
+                            let taskSerie = taskSeries[j]
+
+                            let actionLabel = new St.Label({ text: taskSerie.name });
+
+                            boxLayout.add_actor(actionLabel);
+                        }
+                    }
+                }
+            });
+
         });
 
         dialog.open();
