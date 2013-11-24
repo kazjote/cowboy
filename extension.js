@@ -22,7 +22,7 @@ window.md5 = function(str) {
 const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
-let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notifier, taskList;
+let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notifier, taskList, searchEntry;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
     <method name='open'>
@@ -58,6 +58,7 @@ function _hideDialog() {
     dialog = null;
     entry  = null;
     taskList = null;
+    searchEntry = null;
 }
 
 function _addEntry(content) {
@@ -94,6 +95,12 @@ function _showDialog() {
         dialog.contentLayout.add(label);
         dialog.contentLayout.add(entry);
 
+        searchEntry = new St.Entry({ name: 'search',
+                                     hint_text: 'Type searched text...',
+                                     text: 'status:incomplete ',
+                                     track_hover: true});
+        dialog.contentLayout.add(searchEntry);
+
         dialog.contentLayout.add(taskList, { x_fill: true, y_fill: true });
 
         let boxLayout = new St.BoxLayout({ vertical: true });
@@ -104,28 +111,39 @@ function _showDialog() {
             boxLayout.remove_actor(children[i]);
         }
 
-        authenticator.authenticated(function() {
-            rtm.get('rtm.tasks.getList', { filter: 'status:incomplete' }, function(resp) {
-                global.log('getList status: ' + resp.rsp.stat);
+        searchEntry.connect('key-release-event', function(object, event) {
+            let symbol = event.get_key_symbol();
 
-                if(resp.rsp.stat == 'ok') {
-                    let lists = resp.rsp.tasks.list;
+            if(symbol == Clutter.Return) {
+                let filter = searchEntry.text;
 
-                    for(let i = 0; i < lists.length; i += 1) {
+                authenticator.authenticated(function() {
+                    rtm.get('rtm.tasks.getList', { filter: filter }, function(resp) {
+                        if(resp.rsp.stat == 'ok') {
 
-                        let taskSeries = lists[i].taskseries;
+                            let children = boxLayout.get_children();
+                            for ( let i = 0; i < children.length; i += 1 ) {
+                                boxLayout.remove_actor(children[i]);
+                            }
 
-                        for(let j = 0; j < taskSeries.length; j += 1) {
-                            let taskSerie = taskSeries[j]
+                            let lists = resp.rsp.tasks.list;
 
-                            let actionLabel = new St.Label({ text: taskSerie.name });
+                            for(let i = 0; i < lists.length; i += 1) {
 
-                            boxLayout.add_actor(actionLabel);
+                                let taskSeries = lists[i].taskseries;
+
+                                for(let j = 0; j < taskSeries.length; j += 1) {
+                                    let taskSerie = taskSeries[j]
+
+                                    let actionLabel = new St.Label({ text: taskSerie.name });
+
+                                    boxLayout.add_actor(actionLabel);
+                                }
+                            }
                         }
-                    }
-                }
-            });
-
+                    });
+                });
+            }
         });
 
         dialog.open();
