@@ -24,7 +24,7 @@ window.md5 = function(str) {
 const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
-let entry, dialog, button, shown, rtm, dbusNameId, dbusOpener, authenticator, notifier, taskList, searchEntry;
+let rtm, dbusNameId, dbusOpener, authenticator, notifier;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
     <method name='open'>
@@ -55,36 +55,6 @@ const DBusOpener = new Lang.Class({
     }
 });
 
-const MainDialog = Lang.Class({
-    Name: 'MainDialog',
-    Extends: ModalDialog.ModalDialog,
-
-    _init : function() {
-        this.parent({ styleClass: 'prompt-dialog' });
-        let mainContentBox = new St.BoxLayout({ style_class: 'prompt-dialog-main-layout',
-                                                vertical: false });
-
-        let entry = new St.Entry({ name: 'newTask',
-                                   hint_text: "New task...",
-                                   track_hover: true,
-                                   style_class: 'task-entry' });
-
-        this.contentLayout.add(mainContentBox,
-                               { x_fill: true,
-                                 y_fill: true });
-
-        mainContentBox.add(entry);
-    }
-});
-
-function _hideDialog() {
-    dialog.close();
-    dialog = null;
-    entry  = null;
-    taskList = null;
-    searchEntry = null;
-}
-
 function _addEntry(content) {
     rtm.get('rtm.timelines.create', {}, function(resp) {
         let options = { timeline: resp.rsp.timeline, name: content, parse: 1 };
@@ -98,85 +68,6 @@ function _addEntry(content) {
     });
 }
 
-function _showDialog() {
-    if (!entry) {
-        entry = new St.Entry({ name: 'newTask',
-                                      hint_text: "New task...",
-                                      track_hover: true,
-                                      style_class: 'task-entry' });
-    }
-
-    if (!taskList) {
-      taskList = new St.ScrollView({ style_class: 'task-list' });
-    }
-
-    if (!dialog) {
-        let label = new St.Label({ name: 'newTaskLabel',
-                                   style_class: 'task-label',
-                                   text: "New task" });
-
-        dialog = new ModalDialog.ModalDialog();
-        dialog.contentLayout.add(label);
-        dialog.contentLayout.add(entry);
-
-        searchEntry = new St.Entry({ name: 'search',
-                                     hint_text: 'Type searched text...',
-                                     text: 'status:incomplete ',
-                                     track_hover: true});
-        dialog.contentLayout.add(searchEntry);
-
-        dialog.contentLayout.add(taskList, { x_fill: true, y_fill: true });
-
-        let boxLayout = new St.BoxLayout({ vertical: true });
-        taskList.add_actor(boxLayout);
-
-        let children = boxLayout.get_children();
-        for ( let i = 0; i < children.length; i += 1 ) {
-            boxLayout.remove_actor(children[i]);
-        }
-
-        searchEntry.connect('key-release-event', function(object, event) {
-            let symbol = event.get_key_symbol();
-
-            if(symbol == Clutter.Return) {
-                let filter = searchEntry.text;
-
-                authenticator.authenticated(function() {
-                    rtm.get('rtm.tasks.getList', { filter: filter }, function(resp) {
-                        if(resp.rsp.stat == 'ok') {
-
-                            let children = boxLayout.get_children();
-                            for ( let i = 0; i < children.length; i += 1 ) {
-                                boxLayout.remove_actor(children[i]);
-                            }
-
-                            let lists = resp.rsp.tasks.list;
-
-                            for(let i = 0; i < lists.length; i += 1) {
-
-                                let taskSeries = lists[i].taskseries;
-
-                                for(let j = 0; j < taskSeries.length; j += 1) {
-                                    let taskSerie = taskSeries[j]
-
-                                    let actionLabel = new St.Label({ text: taskSerie.name });
-
-                                    boxLayout.add_actor(actionLabel);
-                                }
-                            }
-                        }
-                    });
-                });
-            }
-        });
-
-        dialog.open();
-    }
-
-    entry.grab_key_focus();
-
-}
-
 function connectDBus() {
     dbusNameId = Gio.DBus.session.own_name('eu.kazjote.todo_lists.opener',
         Gio.BusNameOwnerFlags.NONE,
@@ -185,13 +76,6 @@ function connectDBus() {
 }
 
 function enable() {
-    // button = new St.Bin({ style_class: 'panel-button',
-    //                       reactive: true,
-    //                       can_focus: true,
-    //                       x_fill: true,
-    //                       y_fill: false,
-    //                       track_hover: true });
-
     var theme = imports.gi.Gtk.IconTheme.get_default();
     let icon_dir = Me.dir.get_child('icons');
     theme.append_search_path(icon_dir.get_path());
@@ -199,22 +83,10 @@ function enable() {
     let icon = new St.Icon({ icon_name: 'rtm-symbolic',
                              style_class: 'system-status-icon' });
 
-    // button.set_child(icon);
-
-    // Main.mainDialog = new MainDialog();
-
-    // button.connect('button-press-event', function() {
-    //     Main.mainDialog.open();
-    // });
-
-    // // button.connect('button-press-event', _showDialog);
-
     rtm           = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
     // dbusOpener    = new DBusOpener();
     notifier      = new Notifier.Notifier();
     authenticator = new Authenticator.RtmAuthenticator(rtm, notifier);
-
-    // Main.panel._rightBox.insert_child_at_index(button, 0);
 
     // connectDBus();
 
@@ -254,11 +126,12 @@ function enable() {
             });
         }
     });
+
+    // FIXME: should be moved to the on open hook (if such exists)
+    entry.grab_key_focus();
 }
 
 function disable() {
-    Main.panel._rightBox.remove_child(button);
-
     dbusOpener.close();
     authenticator.close();
     Gio.DBus.session.unown_name(dbusNameId);
