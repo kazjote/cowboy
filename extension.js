@@ -10,6 +10,7 @@ const Main        = imports.ui.main;
 const MessageTray = imports.ui.messageTray;
 const ModalDialog = imports.ui.modalDialog;
 const PopupMenu   = imports.ui.popupMenu;
+const BoxPointer  = imports.ui.boxpointer;
 
 const Me            = ExtensionUtils.getCurrentExtension();
 const Rtm           = Me.imports.rtm;
@@ -124,11 +125,19 @@ function enable() {
             authenticator.authenticated(function() {
                 _addEntry(text);
             });
+
+            entry.set_text('');
+            tray.menu.close(BoxPointer.PopupAnimation.FADE);
         }
+
+
     });
 
-    // FIXME: should be moved to the on open hook (if such exists)
-    entry.grab_key_focus();
+    tray.menu.connect('open-state-changed', function(self, open) {
+        if(open) {
+            entry.grab_key_focus();
+        }
+    });
 }
 
 function disable() {
