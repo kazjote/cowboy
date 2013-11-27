@@ -4,10 +4,12 @@ const Gio            = imports.gi.Gio;
 const ExtensionUtils = imports.misc.extensionUtils;
 const GLib           = imports.gi.GLib;
 const Lang           = imports.lang;
+const PanelMenu      = imports.ui.panelMenu;
 
 const Main        = imports.ui.main;
 const MessageTray = imports.ui.messageTray;
 const ModalDialog = imports.ui.modalDialog;
+const PopupMenu   = imports.ui.popupMenu;
 
 const Me            = ExtensionUtils.getCurrentExtension();
 const Rtm           = Me.imports.rtm;
@@ -50,6 +52,28 @@ const DBusOpener = new Lang.Class({
 
     close: function() {
       this._impl.unexport();
+    }
+});
+
+const MainDialog = Lang.Class({
+    Name: 'MainDialog',
+    Extends: ModalDialog.ModalDialog,
+
+    _init : function() {
+        this.parent({ styleClass: 'prompt-dialog' });
+        let mainContentBox = new St.BoxLayout({ style_class: 'prompt-dialog-main-layout',
+                                                vertical: false });
+
+        let entry = new St.Entry({ name: 'newTask',
+                                   hint_text: "New task...",
+                                   track_hover: true,
+                                   style_class: 'task-entry' });
+
+        this.contentLayout.add(mainContentBox,
+                               { x_fill: true,
+                                 y_fill: true });
+
+        mainContentBox.add(entry);
     }
 });
 
@@ -151,23 +175,6 @@ function _showDialog() {
 
     entry.grab_key_focus();
 
-    entry.connect('key-release-event', function(object, event) {
-        let symbol = event.get_key_symbol();
-
-        if(symbol == Clutter.Escape) {
-            _hideDialog();
-        }
-
-        if(symbol == Clutter.Return) {
-            let text = entry.get_text();
-
-            _hideDialog();
-
-            authenticator.authenticated(function() {
-                _addEntry(text);
-            });
-        }
-    });
 }
 
 function connectDBus() {
@@ -178,12 +185,12 @@ function connectDBus() {
 }
 
 function enable() {
-    button = new St.Bin({ style_class: 'panel-button',
-                          reactive: true,
-                          can_focus: true,
-                          x_fill: true,
-                          y_fill: false,
-                          track_hover: true });
+    // button = new St.Bin({ style_class: 'panel-button',
+    //                       reactive: true,
+    //                       can_focus: true,
+    //                       x_fill: true,
+    //                       y_fill: false,
+    //                       track_hover: true });
 
     var theme = imports.gi.Gtk.IconTheme.get_default();
     let icon_dir = Me.dir.get_child('icons');
@@ -192,17 +199,61 @@ function enable() {
     let icon = new St.Icon({ icon_name: 'rtm-symbolic',
                              style_class: 'system-status-icon' });
 
-    button.set_child(icon);
-    button.connect('button-press-event', _showDialog);
+    // button.set_child(icon);
+
+    // Main.mainDialog = new MainDialog();
+
+    // button.connect('button-press-event', function() {
+    //     Main.mainDialog.open();
+    // });
+
+    // // button.connect('button-press-event', _showDialog);
 
     rtm           = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
-    dbusOpener    = new DBusOpener();
+    // dbusOpener    = new DBusOpener();
     notifier      = new Notifier.Notifier();
     authenticator = new Authenticator.RtmAuthenticator(rtm, notifier);
 
-    Main.panel._rightBox.insert_child_at_index(button, 0);
+    // Main.panel._rightBox.insert_child_at_index(button, 0);
 
-    connectDBus();
+    // connectDBus();
+
+    let tray = new PanelMenu.Button(0.5);
+
+    let panel = Main.panel._rightBox;
+    let StatusArea = Main.panel._statusArea;
+
+    if (StatusArea == undefined){
+        StatusArea = Main.panel.statusArea;
+    }
+
+    Main.panel._addToPanelBox('cowboy', tray, 1, panel);
+
+    let box = new St.BoxLayout();
+    tray.actor.add_actor(box);
+    box.add_actor(icon);
+
+    let entry = new St.Entry({ name: 'newTask',
+                               hint_text: "New task...",
+                               track_hover: true,
+                               style_class: 'task-entry' });
+
+    let menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
+    menu_item.addActor(entry, {span: -1, expand: true});
+
+    tray.menu.addMenuItem(menu_item);
+
+    entry.connect('key-release-event', function(object, event) {
+        let symbol = event.get_key_symbol();
+
+        if(symbol == Clutter.Return) {
+            let text = entry.get_text();
+
+            authenticator.authenticated(function() {
+                _addEntry(text);
+            });
+        }
+    });
 }
 
 function disable() {
