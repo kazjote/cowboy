@@ -47,7 +47,6 @@ const DBusOpener = new Lang.Class({
      * dbus-send --session --type=method_call --print-reply --dest=eu.kazjote.todo_lists.opener '/eu/kazjote/todo_lists/opener' 'eu.kazjote.todo_lists.opener.open'
      */
     open: function(args) {
-        _showDialog();
         return 0;
     },
 
@@ -144,6 +143,72 @@ function enable() {
             entry.grab_key_focus();
         }
     });
+
+    label = new St.Label({
+          name: 'searchTaskLabel',
+          style_class: 'task-label',
+          text: "Search" });
+
+    let searchEntry = new St.Entry({
+          name: 'search',
+          hint_text: "Search query...",
+          track_hover: true,
+          style_class: 'task-entry' });
+
+    menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
+
+    menu_item.addActor(label);
+    menu_item.addActor(searchEntry, {expand: true});
+
+    tray.menu.addMenuItem(menu_item);
+
+    let taskList = new St.ScrollView({ style_class: 'task-list' });
+
+    menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
+
+    menu_item.addActor(taskList, {expand: true, span: 2});
+
+    let boxLayout = new St.BoxLayout({ vertical: true });
+    taskList.add_actor(boxLayout);
+
+    searchEntry.connect('key-release-event', function(object, event) {
+        let symbol = event.get_key_symbol();
+
+        if(symbol == Clutter.Return) {
+            let filter = searchEntry.text + ' status:incomplete';
+
+            authenticator.authenticated(function() {
+                rtm.get('rtm.tasks.getList', { filter: filter }, function(resp) {
+                    if(resp.rsp.stat == 'ok') {
+
+                        let children = boxLayout.get_children();
+                        for ( let i = 0; i < children.length; i += 1 ) {
+                            boxLayout.remove_actor(children[i]);
+                        }
+
+                        let lists = resp.rsp.tasks.list;
+
+                        if(lists === undefined) { return null; }
+
+                        for(let i = 0; i < lists.length; i += 1) {
+
+                            let taskSeries = lists[i].taskseries;
+
+                            for(let j = 0; j < taskSeries.length; j += 1) {
+                                let taskSerie = taskSeries[j]
+
+                                let actionLabel = new St.Label({ text: taskSerie.name });
+
+                                boxLayout.add_actor(actionLabel);
+                            }
+                        }
+                    }
+                });
+            });
+        }
+    });
+
+    tray.menu.addMenuItem(menu_item);
 }
 
 function disable() {
