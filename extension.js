@@ -106,13 +106,19 @@ function enable() {
     tray.actor.add_actor(box);
     box.add_actor(icon);
 
+    let label = new St.Label({ name: 'newTaskLabel',
+                               style_class: 'task-label',
+                               text: "New task" });
+
     let entry = new St.Entry({ name: 'newTask',
                                hint_text: "New task...",
                                track_hover: true,
                                style_class: 'task-entry' });
 
     let menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
-    menu_item.addActor(entry, {span: -1, expand: true});
+
+    menu_item.addActor(label);
+    menu_item.addActor(entry, {expand: true});
 
     tray.menu.addMenuItem(menu_item);
 
