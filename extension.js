@@ -105,6 +105,8 @@ function enable() {
     tray.actor.add_actor(box);
     box.add_actor(icon);
 
+    let table_layout = new St.Table();
+
     let label = new St.Label({ name: 'newTaskLabel',
                                style_class: 'task-label',
                                text: "New task" });
@@ -114,12 +116,8 @@ function enable() {
                                track_hover: true,
                                style_class: 'task-entry' });
 
-    let menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
-
-    menu_item.addActor(label);
-    menu_item.addActor(entry, {expand: true});
-
-    tray.menu.addMenuItem(menu_item);
+    table_layout.add(label, {row: 0, col: 0, x_expand: false});
+    table_layout.add(entry, {row: 0, col: 1, x_expand: true, x_fill: true, y_fill: false, y_expand: false});
 
     entry.connect('key-release-event', function(object, event) {
         let symbol = event.get_key_symbol();
@@ -155,18 +153,19 @@ function enable() {
           track_hover: true,
           style_class: 'task-entry' });
 
-    menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
-
-    menu_item.addActor(label);
-    menu_item.addActor(searchEntry, {expand: true});
-
-    tray.menu.addMenuItem(menu_item);
+    table_layout.add(label, {row: 1, col: 0, x_expand: false});
+    table_layout.add(searchEntry, {row: 1, col: 1, x_expand: true, x_fill: true, y_fill: false, y_expand: false});
 
     let taskList = new St.ScrollView({ style_class: 'task-list' });
 
-    menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
+    let main_box = new St.BoxLayout({vertical: true});
 
-    menu_item.addActor(taskList, {expand: true, span: 2});
+    main_box.add(table_layout);
+    main_box.add(taskList);
+
+    let menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
+
+    menu_item.addActor(main_box, {expand: true});
 
     let boxLayout = new St.BoxLayout({ vertical: true });
     taskList.add_actor(boxLayout);
@@ -197,12 +196,14 @@ function enable() {
                             for(let j = 0; j < taskSeries.length; j += 1) {
                                 let taskSerie = taskSeries[j]
 
-                                let actionLabel = new St.Label({ text: taskSerie.name });
+                                let actionLabel = new St.Label({ text: taskSerie.name, style_class: 'task' });
 
                                 boxLayout.add_actor(actionLabel);
                             }
                         }
                     }
+
+                    return null;
                 });
             });
         }

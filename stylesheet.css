@@ -1,18 +1,23 @@
-
-.task-entry {
-    font-size: 36px;
-    font-weight: bold;
-    border-radius: 5px;
-    padding: .5em;
-    width: 800px;
-    height: 50px;
+.task-label {
+  font-weight: bold;
+  padding: 7px 10px 7px 0;
 }
 
-.task-label {
-  font-size: 24px;
+.task-entry {
+  background-color: #333;
+  border: solid 1px white;
+  padding: 2px 2px 2px 2px;
+  min-width: 200px;
+}
+
+.task {
+  padding: 5px 15px 5px 15px;
+
+  background-gradient-start: #222;
+  background-gradient-end: #000;
+  background-gradient-direction: vertical;
 }
 
 .task-list {
-  width: 800px;
-  height: 500px;
+  padding-top: 10px;
 }
