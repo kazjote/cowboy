@@ -25,7 +25,7 @@ window.md5 = function(str) {
 const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
-let rtm, dbusNameId, dbusOpener, authenticator, notifier;
+let rtm, dbusNameId, dbusOpener, authenticator, notifier, tray;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
     <method name='open'>
@@ -47,6 +47,7 @@ const DBusOpener = new Lang.Class({
      * dbus-send --session --type=method_call --print-reply --dest=eu.kazjote.todo_lists.opener '/eu/kazjote/todo_lists/opener' 'eu.kazjote.todo_lists.opener.open'
      */
     open: function(args) {
+        tray.menu.open();
         return 0;
     },
 
@@ -84,13 +85,13 @@ function enable() {
                              style_class: 'system-status-icon' });
 
     rtm           = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
-    // dbusOpener    = new DBusOpener();
+    dbusOpener    = new DBusOpener();
     notifier      = new Notifier.Notifier();
     authenticator = new Authenticator.RtmAuthenticator(rtm, notifier);
 
-    // connectDBus();
+    connectDBus();
 
-    let tray = new PanelMenu.Button(0.5);
+    tray = new PanelMenu.Button(0.5);
 
     let panel = Main.panel._rightBox;
     let StatusArea = Main.panel._statusArea;
@@ -217,3 +218,5 @@ function disable() {
     authenticator.close();
     Gio.DBus.session.unown_name(dbusNameId);
 }
+
+// vim: set ts=4 sw=4
