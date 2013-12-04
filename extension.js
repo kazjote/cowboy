@@ -216,6 +216,7 @@ function enable() {
 function disable() {
     dbusOpener.close();
     authenticator.close();
+    tray.actor.destroy();
     Gio.DBus.session.unown_name(dbusNameId);
 }
 
