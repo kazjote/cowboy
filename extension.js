@@ -16,6 +16,7 @@ const Me            = ExtensionUtils.getCurrentExtension();
 const Rtm           = Me.imports.rtm;
 const Authenticator = Me.imports.authenticator;
 const Notifier      = Me.imports.notifier;
+const TaskList      = Me.imports.task_list;
 
 window.md5 = function(str) {
     // I tried glib md5 but it didn't work
@@ -25,7 +26,7 @@ window.md5 = function(str) {
 const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
-let rtm, dbusNameId, dbusOpener, authenticator, notifier, tray;
+let rtm, dbusNameId, dbusOpener, authenticator, notifier, tray, taskList;
 
 const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
     <method name='open'>
@@ -62,6 +63,7 @@ function _addEntry(content) {
         rtm.get('rtm.tasks.add', options, function(resp) {
             if (resp.rsp.stat == 'ok') {
                 notifier.notify("Task successfully created", content);
+                taskList.refresh();
             } else {
                 notifier.notify("Failed to create the task", content);
             }
@@ -132,8 +134,6 @@ function enable() {
 
             entry.set_text('');
         }
-
-
     });
 
     tray.menu.connect('open-state-changed', function(self, open) {
@@ -156,56 +156,25 @@ function enable() {
     table_layout.add(label, {row: 1, col: 0, x_expand: false});
     table_layout.add(searchEntry, {row: 1, col: 1, x_expand: true, x_fill: true, y_fill: false, y_expand: false});
 
-    let taskList = new St.ScrollView({ style_class: 'task-list' });
+    let taskArea = new St.ScrollView({ style_class: 'task-list' });
 
     let main_box = new St.BoxLayout({vertical: true});
 
     main_box.add(table_layout);
-    main_box.add(taskList);
+    main_box.add(taskArea);
 
     let menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
 
     menu_item.addActor(main_box, {expand: true});
 
     let boxLayout = new St.BoxLayout({ vertical: true });
-    taskList.add_actor(boxLayout);
+    taskArea.add_actor(boxLayout);
+
+    taskList = new TaskList.TaskList(boxLayout, authenticator, rtm);
 
     searchEntry.connect('key-release-event', function(object, event) {
-        let symbol = event.get_key_symbol();
-
-        if(symbol == Clutter.Return) {
-            let filter = searchEntry.text + ' status:incomplete';
-
-            authenticator.authenticated(function() {
-                rtm.get('rtm.tasks.getList', { filter: filter }, function(resp) {
-                    if(resp.rsp.stat == 'ok') {
-
-                        let children = boxLayout.get_children();
-                        for ( let i = 0; i < children.length; i += 1 ) {
-                            boxLayout.remove_actor(children[i]);
-                        }
-
-                        let lists = resp.rsp.tasks.list;
-
-                        if(lists === undefined) { return null; }
-
-                        for(let i = 0; i < lists.length; i += 1) {
-
-                            let taskSeries = lists[i].taskseries;
-
-                            for(let j = 0; j < taskSeries.length; j += 1) {
-                                let taskSerie = taskSeries[j]
-
-                                let actionLabel = new St.Label({ text: taskSerie.name, style_class: 'task' });
-
-                                boxLayout.add_actor(actionLabel);
-                            }
-                        }
-                    }
-
-                    return null;
-                });
-            });
+        if(event.get_key_symbol() == Clutter.Return) {
+            taskList.refresh(searchEntry.text);
         }
     });
 
@@ -219,4 +188,4 @@ function disable() {
     Gio.DBus.session.unown_name(dbusNameId);
 }
 
-// vim: set ts=4 sw=4
+// vim: ts=4 sw=4
