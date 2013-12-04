@@ -131,7 +131,6 @@ function enable() {
             });
 
             entry.set_text('');
-            tray.menu.close(BoxPointer.PopupAnimation.FADE);
         }
 
 
