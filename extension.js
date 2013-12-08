@@ -172,6 +172,20 @@ function enable() {
 
     taskList = new TaskList.TaskList(boxLayout, authenticator, rtm);
 
+    tray.menu.actor.connect('key-release-event', function(object, event) {
+        let modifiers = event.get_state();
+
+        if (modifiers & Clutter.ModifierType.CONTROL_MASK) {
+            if(event.get_key_symbol() == Clutter.n) {
+                entry.grab_key_focus();
+            }
+
+            if(event.get_key_symbol() == Clutter.f) {
+                searchEntry.grab_key_focus();
+            }
+        }
+    });
+
     searchEntry.connect('key-release-event', function(object, event) {
         if(event.get_key_symbol() == Clutter.Return) {
             taskList.refresh(searchEntry.text);
