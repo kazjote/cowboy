@@ -1,15 +1,18 @@
 const Lang = imports.lang;
 const St = imports.gi.St;
 
+const PopupMenu = imports.ui.popupMenu;
+
 const TaskList = new Lang.Class({
     Name: 'TaskList',
 
     //// Public methods ////
 
-    _init: function(container, authenticator, rtm) {
-        this._container = container;
+    _init: function(menu, authenticator, rtm) {
+        this._menu = menu;
         this._authenticator = authenticator;
         this._rtm = rtm;
+        this._menu_items = [];
     },
 
 
@@ -36,11 +39,11 @@ const TaskList = new Lang.Class({
     //// Private methods ////
 
     _recreate: function(lists) {
-        let children = this._container.get_children();
+        this._menu_items.forEach(function(menu_item) {
+            menu_item.destroy();
+        });
 
-        for ( let i = 0; i < children.length; i += 1 ) {
-            this._container.remove_actor(children[i]);
-        }
+        this._menu_item = [];
 
         if(lists === undefined) { return null; }
 
@@ -64,9 +67,10 @@ const TaskList = new Lang.Class({
     },
 
     _add_task: function(taskSerie) {
-        let actionLabel = new St.Label({ text: taskSerie.name, style_class: 'task' });
+        let menu_item = new PopupMenu.PopupMenuItem(taskSerie.name);
 
-        this._container.add_actor(actionLabel);
+        this._menu_items.push(menu_item);
+        this._menu.addMenuItem(menu_item);
     }
 });
 

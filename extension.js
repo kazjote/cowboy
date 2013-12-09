@@ -156,21 +156,15 @@ function enable() {
     table_layout.add(label, {row: 1, col: 0, x_expand: false});
     table_layout.add(searchEntry, {row: 1, col: 1, x_expand: true, x_fill: true, y_fill: false, y_expand: false});
 
-    let taskArea = new St.ScrollView({ style_class: 'task-list' });
-
     let main_box = new St.BoxLayout({vertical: true});
 
     main_box.add(table_layout);
-    main_box.add(taskArea);
 
     let menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
 
     menu_item.addActor(main_box, {expand: true});
 
-    let boxLayout = new St.BoxLayout({ vertical: true });
-    taskArea.add_actor(boxLayout);
-
-    taskList = new TaskList.TaskList(boxLayout, authenticator, rtm);
+    taskList = new TaskList.TaskList(tray.menu, authenticator, rtm);
 
     tray.menu.actor.connect('key-release-event', function(object, event) {
         let modifiers = event.get_state();
