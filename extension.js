@@ -164,7 +164,7 @@ function enable() {
 
     menu_item.addActor(main_box, {expand: true});
 
-    taskList = new TaskList.TaskList(tray.menu, authenticator, rtm);
+    taskList = new TaskList.TaskList(tray.menu, authenticator, rtm, notifier);
 
     tray.menu.actor.connect('key-release-event', function(object, event) {
         let modifiers = event.get_state();

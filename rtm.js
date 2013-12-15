@@ -61,7 +61,7 @@ const RememberTheMilk = new Lang.Class({
 
         this._httpSession.queue_message(request, imports.lang.bind(this,
             function(_httpSession, message) {
-                // log('Answer: ' + request.response_body.data);
+                log('Answer: ' + request.response_body.data);
                 callback.call(this, JSON.parse(request.response_body.data));
             }
         ));
