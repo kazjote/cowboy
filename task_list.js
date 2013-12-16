@@ -44,7 +44,7 @@ const TaskList = new Lang.Class({
             menu_item.destroy();
         });
 
-        this._menu_item = [];
+        this._menu_items = [];
 
         if(lists === undefined) { return null; }
 
