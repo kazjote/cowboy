@@ -18,11 +18,6 @@ const Authenticator = Me.imports.authenticator;
 const Notifier      = Me.imports.notifier;
 const TaskList      = Me.imports.task_list;
 
-window.md5 = function(str) {
-    // I tried glib md5 but it didn't work
-    return Md5.hex_md5(str);
-}
-
 const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 

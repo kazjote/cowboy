@@ -1,11 +1,11 @@
 /* Based on https://github.com/michaelday/rtm-js */
 
+const ExtensionUtils = imports.misc.extensionUtils;
+const GLib           = imports.gi.GLib;
 const Lang           = imports.lang;
 const Soup           = imports.gi.Soup;
-const ExtensionUtils = imports.misc.extensionUtils;
 
 const Me  = ExtensionUtils.getCurrentExtension();
-const Md5 = Me.imports.md5;
 
 const RememberTheMilk = new Lang.Class({
     Name: 'RememberTheMilk',
@@ -120,7 +120,11 @@ const RememberTheMilk = new Lang.Class({
         }
 
         signature = this._appSecret + signature;
-        signatureUrl += Md5.hex_md5(signature);
+
+        let checksum = new GLib.Checksum(GLib.ChecksumType.MD5);
+        checksum.update(signature);
+
+        signatureUrl += checksum.get_string();
 
         return signatureUrl;
     },
