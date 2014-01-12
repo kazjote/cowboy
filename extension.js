@@ -17,6 +17,7 @@ const Rtm           = Me.imports.rtm;
 const Authenticator = Me.imports.authenticator;
 const Notifier      = Me.imports.notifier;
 const TaskList      = Me.imports.task_list;
+const HelpDialog    = Me.imports.help_dialog;
 
 const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
@@ -154,7 +155,24 @@ function enable() {
 
     table_layout.add(label, {row: 1, col: 0, x_expand: false});
     table_layout.add(searchEntry, {row: 1, col: 1, x_expand: true, x_fill: true, y_fill: false, y_expand: false});
+
     table_layout.add(processingLabel, { row: 2 });
+
+    let helpIcon = St.Icon.new();
+    let iconButton = St.Button.new();
+    iconButton.child = helpIcon;
+
+    table_layout.add(iconButton, { row: 0, col: 2 });
+
+    helpIcon.icon_name = 'dialog-question-symbolic';
+    helpIcon.icon_size = 16;
+    helpIcon.style_class = 'help-icon';
+
+    iconButton.connect('clicked', function() {
+        let dialog = new HelpDialog.HelpDialog();
+        dialog.open();
+        tray.menu.close();
+    });
 
     let main_box = new St.BoxLayout({vertical: true});
 
@@ -183,6 +201,7 @@ function enable() {
     searchEntry.connect('key-release-event', function(object, event) {
         if(event.get_key_symbol() == Clutter.Return) {
             taskList.refresh(searchEntry.text);
+            searchEntry.text = '';
         }
     });
 
