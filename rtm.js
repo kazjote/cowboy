@@ -12,12 +12,14 @@ const RememberTheMilk = new Lang.Class({
 
     //// Public methods ////
 
-    _init: function(appKey, appSecret, permissions) {
+    _init: function(appKey, appSecret, permissions, label) {
         this._authUrl     = 'https://www.rememberthemilk.com/services/auth/';
         this._baseUrl     = 'https://api.rememberthemilk.com/services/rest/';
         this._appKey      = appKey;
         this._appSecret   = appSecret;
         this._permissions = permissions;
+        this._label       = label
+        this._processNotifications = [];
     },
 
     checkCredentials: function(callbacks) {
@@ -59,9 +61,26 @@ const RememberTheMilk = new Lang.Class({
         var request = Soup.Message.new('GET', requestUrl);
         // log('Request: ' + requestUrl);
 
+        let notification = {
+            description: 'Processing ' + method + ' ...',
+
+            finish: Lang.bind(this, function() {
+                let index = this._processNotifications.indexOf(notification);
+
+                this._processNotifications.splice(index, 1);
+                this._refreshLabel();
+            })
+        };
+
+        this._processNotifications.push(notification);
+
+        this._refreshLabel();
+
         this._httpSession.queue_message(request, imports.lang.bind(this,
             function(_httpSession, message) {
                 // log('Answer: ' + request.response_body.data);
+                notification.finish();
+                this._refreshLabel();
                 callback.call(this, JSON.parse(request.response_body.data));
             }
         ));
@@ -128,4 +147,17 @@ const RememberTheMilk = new Lang.Class({
 
         return signatureUrl;
     },
+
+    _refreshLabel: function() {
+        if(this._processNotifications.length == 0) {
+            this._label.text = 'Ready';
+        } else {
+            this._label.text = this._processNotifications.map(function(notification) {
+                return notification.description;
+            }).join('\n');
+        }
+    }
+
 });
+
+// vim: ts=4 sw=4

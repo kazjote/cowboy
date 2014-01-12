@@ -155,3 +155,5 @@ const RtmAuthenticator = new Lang.Class({
  * - Token gets invalidated after authentication and before all queued tasks are sent
  *
  */
+
+// vim: ts=4 sw=4

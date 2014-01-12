@@ -21,3 +21,7 @@
 .task-list {
   padding-top: 10px;
 }
+
+.processing-label {
+  color: grey;
+}

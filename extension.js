@@ -81,11 +81,8 @@ function enable() {
     let icon = new St.Icon({ icon_name: 'rtm-symbolic',
                              style_class: 'system-status-icon' });
 
-    rtm           = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write');
-    dbusOpener    = new DBusOpener();
-    notifier      = new Notifier.Notifier();
-    authenticator = new Authenticator.RtmAuthenticator(rtm, notifier);
-
+    dbusOpener = new DBusOpener();
+    notifier = new Notifier.Notifier();
     connectDBus();
 
     tray = new PanelMenu.Button(0.5);
@@ -148,8 +145,16 @@ function enable() {
           track_hover: true,
           style_class: 'task-entry' });
 
+    let processingLabel = new St.Label({
+          name: 'processingLabel',
+          style_class: 'processing-label' });
+
+    rtm = new Rtm.RememberTheMilk(AppKey, AppSecret, 'write', processingLabel);
+    authenticator = new Authenticator.RtmAuthenticator(rtm, notifier);
+
     table_layout.add(label, {row: 1, col: 0, x_expand: false});
     table_layout.add(searchEntry, {row: 1, col: 1, x_expand: true, x_fill: true, y_fill: false, y_expand: false});
+    table_layout.add(processingLabel, { row: 2 });
 
     let main_box = new St.BoxLayout({vertical: true});
 
