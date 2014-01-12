@@ -162,7 +162,7 @@ function enable() {
     let iconButton = St.Button.new();
     iconButton.child = helpIcon;
 
-    table_layout.add(iconButton, { row: 0, col: 2 });
+    table_layout.add(iconButton, { row: 0, col: 2, x_expand: false });
 
     helpIcon.icon_name = 'dialog-question-symbolic';
     helpIcon.icon_size = 16;

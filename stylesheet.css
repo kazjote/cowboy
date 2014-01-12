@@ -29,3 +29,14 @@
 .help-icon {
   padding-left: 10px;
 }
+
+.header {
+  font-weight: bold;
+  font-size: large;
+  padding: 10px 0 10px 0;
+}
+
+.help-entry {
+  width: 400px;
+  background-color: grey;
+}
