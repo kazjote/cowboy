@@ -150,11 +150,13 @@ const RememberTheMilk = new Lang.Class({
 
     _refreshLabel: function() {
         if(this._processNotifications.length == 0) {
-            this._label.text = 'Ready';
+            this._label.hide();
         } else {
             this._label.text = this._processNotifications.map(function(notification) {
                 return notification.description;
             }).join('\n');
+
+            this._label.show();
         }
     }
 

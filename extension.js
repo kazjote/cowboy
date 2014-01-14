@@ -156,7 +156,21 @@ function enable() {
     table_layout.add(label, {row: 1, col: 0, x_expand: false});
     table_layout.add(searchEntry, {row: 1, col: 1, x_expand: true, x_fill: true, y_fill: false, y_expand: false});
 
-    table_layout.add(processingLabel, { row: 2 });
+    let processingLabelShown = false;
+
+    processingLabel.hide = function() {
+        if(processingLabelShown) {
+            table_layout.remove_actor(processingLabel);
+            processingLabelShown = false;
+        }
+    };
+
+    processingLabel.show = function() {
+        if(!processingLabelShown) {
+            table_layout.add(processingLabel, { row: 2 });
+            processingLabelShown = true;
+        }
+    };
 
     let helpIcon = St.Icon.new();
     let iconButton = St.Button.new();
