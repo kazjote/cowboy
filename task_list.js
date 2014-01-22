@@ -1,5 +1,7 @@
 const Lang = imports.lang;
 const St = imports.gi.St;
+const GLib = imports.gi.GLib;
+const Gio = imports.gi.Gio;
 
 const PopupMenu = imports.ui.popupMenu;
 
@@ -80,6 +82,29 @@ const TaskList = new Lang.Class({
 
     _add_task: function(list, taskSerie, task) {
         let menu_item = new PopupMenu.PopupSubMenuMenuItem(taskSerie.name);
+
+        menu_item.menu.addAction('Details', function() {
+            let [res, pid, in_fd, out_fd, err_fd] = GLib.spawn_async_with_pipes(null, ['/usr/local/bin/cowboy_tasks'], null, 0, null);
+
+            let in_writer = new Gio.DataOutputStream({
+                base_stream: new Gio.UnixOutputStream({fd: in_fd})
+            });
+
+            let json = JSON.stringify({
+                'name': taskSerie.name,
+                'url': taskSerie.url,
+                'tags': taskSerie.tags,
+                'notes': taskSerie.notes.note,
+                'due': task.due,
+                'priority': task.priority,
+                'estimate': task.estimate
+            });
+
+            log(json);
+
+            in_writer.put_string(json + '\n', null);
+        });
+
 
         menu_item.menu.addAction('Complete', Lang.bind(this, function() {
             this._authenticator.authenticated(Lang.bind(this, function() {
