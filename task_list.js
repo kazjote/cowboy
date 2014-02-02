@@ -84,7 +84,7 @@ const TaskList = new Lang.Class({
         let menu_item = new PopupMenu.PopupSubMenuMenuItem(taskSerie.name);
 
         menu_item.menu.addAction('Details', function() {
-            let [res, pid, in_fd, out_fd, err_fd] = GLib.spawn_async_with_pipes(null, ['/usr/local/bin/cowboy_tasks'], null, 0, null);
+            let [res, pid, in_fd, out_fd, err_fd] = GLib.spawn_async_with_pipes(null, ['cowboy_tasks'], null, GLib.SpawnFlags.SEARCH_PATH, null);
 
             let in_writer = new Gio.DataOutputStream({
                 base_stream: new Gio.UnixOutputStream({fd: in_fd})
