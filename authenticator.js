@@ -76,7 +76,7 @@ const RtmAuthenticator = new Lang.Class({
             notification.addButton('web-browser', "Authenticate");
 
             notification.connect('action-invoked', Lang.bind(this, function() {
-                GLib.spawn_command_line_async('gvfs-open \'' + authUrl + '\'');
+                Gio.app_info_launch_default_for_uri(authUrl, global.create_app_launch_context());
 
                 this._continueWithCredentials(frob);
             }));
