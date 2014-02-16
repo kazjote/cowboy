@@ -1,8 +1,9 @@
 const Clutter = imports.gi.Clutter;
 const Lang = imports.lang;
-const ModalDialog = imports.ui.modalDialog;
-const MessageTray = imports.ui.messageTray;
 const St = imports.gi.St;
+
+const MessageTray = imports.ui.messageTray;
+const ModalDialog = imports.ui.modalDialog;
 
 const HelpDialog = new Lang.Class({
   Name: 'HelpDialog',

@@ -1,23 +1,23 @@
-const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
 const ExtensionUtils = imports.misc.extensionUtils;
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
-const PanelMenu = imports.ui.panelMenu;
+const St = imports.gi.St;
 
+const BoxPointer = imports.ui.boxpointer;
 const Main = imports.ui.main;
 const MessageTray = imports.ui.messageTray;
 const ModalDialog = imports.ui.modalDialog;
+const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const BoxPointer = imports.ui.boxpointer;
 
 const Me = ExtensionUtils.getCurrentExtension();
-const Rtm = Me.imports.rtm;
-const Authenticator = Me.imports.authenticator;
-const Notifier = Me.imports.notifier;
-const TaskList = Me.imports.task_list;
-const DBusService = Me.imports.dbus_service.DBusService;
 const ActionBox = Me.imports.action_box.ActionBox;
+const Authenticator = Me.imports.authenticator;
+const DBusService = Me.imports.dbus_service.DBusService;
+const Notifier = Me.imports.notifier;
+const Rtm = Me.imports.rtm;
+const TaskList = Me.imports.task_list;
 
 const AppKey = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';

@@ -1,7 +1,7 @@
-const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
-const Lang = imports.lang;
 const ExtensionUtils = imports.misc.extensionUtils;
+const Lang = imports.lang;
+const St = imports.gi.St;
 
 const Me = ExtensionUtils.getCurrentExtension();
 const HelpDialog = Me.imports.help_dialog;
