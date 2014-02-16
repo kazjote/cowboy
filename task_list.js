@@ -41,45 +41,6 @@ const TaskList = new Lang.Class({
 
     //// Private methods ////
 
-    _recreate: function(lists) {
-        this._menu_items.forEach(function(menu_item) {
-            menu_item.destroy();
-        });
-
-        this._menu_items = [];
-
-        if(lists === undefined) { return null; }
-
-        for(let i = 0; i < lists.length; i += 1) {
-
-            let list = lists[i];
-            let taskSeries = lists[i].taskseries;
-
-            // When there is only one task, taskseries is just a hash with this task
-            //
-            // When there are more tasks, it is an array
-            if(taskSeries.length === undefined) {
-                this._add_task_serie(list, taskSeries);
-            } else {
-                for(let j = 0; j < taskSeries.length; j += 1) {
-                    this._add_task_serie(list, taskSeries[j]);
-                }
-            }
-        }
-
-        return null;
-    },
-
-    _add_task_serie: function(list, taskSerie) {
-        if(taskSerie.task.length === undefined) {
-            this._add_task(list, taskSerie, taskSerie.task);
-        } else {
-            for (let i = 0; i < taskSerie.task.length; i += 1) {
-                this._add_task(list, taskSerie, taskSerie.task[i]);
-            };
-        }
-    },
-
     _add_task: function(list, taskSerie, task) {
         let menu_item = new PopupMenu.PopupSubMenuMenuItem(taskSerie.name);
 
@@ -129,6 +90,45 @@ const TaskList = new Lang.Class({
 
         this._menu_items.push(menu_item);
         this._menu.addMenuItem(menu_item);
+    },
+
+    _add_task_serie: function(list, taskSerie) {
+        if(taskSerie.task.length === undefined) {
+            this._add_task(list, taskSerie, taskSerie.task);
+        } else {
+            for (let i = 0; i < taskSerie.task.length; i += 1) {
+                this._add_task(list, taskSerie, taskSerie.task[i]);
+            };
+        }
+    },
+
+    _recreate: function(lists) {
+        this._menu_items.forEach(function(menu_item) {
+            menu_item.destroy();
+        });
+
+        this._menu_items = [];
+
+        if(lists === undefined) { return null; }
+
+        for(let i = 0; i < lists.length; i += 1) {
+
+            let list = lists[i];
+            let taskSeries = lists[i].taskseries;
+
+            // When there is only one task, taskseries is just a hash with this task
+            //
+            // When there are more tasks, it is an array
+            if(taskSeries.length === undefined) {
+                this._add_task_serie(list, taskSeries);
+            } else {
+                for(let j = 0; j < taskSeries.length; j += 1) {
+                    this._add_task_serie(list, taskSeries[j]);
+                }
+            }
+        }
+
+        return null;
     }
 });
 

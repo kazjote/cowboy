@@ -9,6 +9,8 @@ const HelpDialog = Me.imports.help_dialog;
 const ActionBox = new Lang.Class({
     Name: 'ActionBox',
 
+    //// Public methods ////
+
     _init: function(layout, trayMenu, authenticator, rtm, taskList, notifier) {
         this._layout = layout;
         this._authenticator = authenticator;
@@ -44,6 +46,8 @@ const ActionBox = new Lang.Class({
             }
         });
     },
+
+    //// Private methods ////
 
     _setupNewTask: function() {
         let label = new St.Label({ name: 'newTaskLabel',
