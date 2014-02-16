@@ -9,12 +9,12 @@ const RtmAuthenticator = new Lang.Class({
     //// Public methods ////
 
     _init: function(rtm, notifier) {
-        this._queue             = [];
-        this._notifier          = notifier;
-        this._rtm               = rtm;
-        this._rtm.auth_token    = this._loadToken();
-        this._authNotification  = null;
-        this._timeout_id        = null;
+        this._queue = [];
+        this._notifier = notifier;
+        this._rtm = rtm;
+        this._rtm.auth_token = this._loadToken();
+        this._authNotification = null;
+        this._timeout_id = null;
     },
 
     authenticated: function(job) {

@@ -1,11 +1,11 @@
 /* Based on https://github.com/michaelday/rtm-js */
 
 const ExtensionUtils = imports.misc.extensionUtils;
-const GLib           = imports.gi.GLib;
-const Lang           = imports.lang;
-const Soup           = imports.gi.Soup;
+const GLib = imports.gi.GLib;
+const Lang = imports.lang;
+const Soup = imports.gi.Soup;
 
-const Me  = ExtensionUtils.getCurrentExtension();
+const Me = ExtensionUtils.getCurrentExtension();
 
 const RememberTheMilk = new Lang.Class({
     Name: 'RememberTheMilk',
@@ -13,12 +13,12 @@ const RememberTheMilk = new Lang.Class({
     //// Public methods ////
 
     _init: function(appKey, appSecret, permissions, label) {
-        this._authUrl     = 'https://www.rememberthemilk.com/services/auth/';
-        this._baseUrl     = 'https://api.rememberthemilk.com/services/rest/';
-        this._appKey      = appKey;
-        this._appSecret   = appSecret;
+        this._authUrl = 'https://www.rememberthemilk.com/services/auth/';
+        this._baseUrl = 'https://api.rememberthemilk.com/services/rest/';
+        this._appKey = appKey;
+        this._appSecret = appSecret;
         this._permissions = permissions;
-        this._label       = label
+        this._label = label
         this._processNotifications = [];
     },
 
@@ -35,7 +35,7 @@ const RememberTheMilk = new Lang.Class({
     get: function(method, params, callback) {
         if (!callback && typeof params == 'function') {
             callback = params;
-            params   = {};
+            params = {};
         }
 
         if (!callback) {
@@ -105,7 +105,7 @@ const RememberTheMilk = new Lang.Class({
         let paramString = '';
         let count = 0;
 
-        params.format    = 'json';
+        params.format = 'json';
         params.api_key = this._appKey;
 
         // Encode the parameter keys and values

@@ -1,4 +1,4 @@
-const Clutter        = imports.gi.Clutter;
+const Clutter = imports.gi.Clutter;
 const Lang = imports.lang;
 const ModalDialog = imports.ui.modalDialog;
 const MessageTray = imports.ui.messageTray;

@@ -1,7 +1,7 @@
 const Lang = imports.lang;
-const St   = imports.gi.St;
+const St = imports.gi.St;
 
-const Main        = imports.ui.main;
+const Main = imports.ui.main;
 const MessageTray = imports.ui.messageTray;
 
 const Notifier = new Lang.Class({

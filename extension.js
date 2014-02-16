@@ -1,25 +1,25 @@
-const St             = imports.gi.St;
-const Clutter        = imports.gi.Clutter;
+const St = imports.gi.St;
+const Clutter = imports.gi.Clutter;
 const ExtensionUtils = imports.misc.extensionUtils;
-const GLib           = imports.gi.GLib;
-const Lang           = imports.lang;
-const PanelMenu      = imports.ui.panelMenu;
+const GLib = imports.gi.GLib;
+const Lang = imports.lang;
+const PanelMenu = imports.ui.panelMenu;
 
-const Main        = imports.ui.main;
+const Main = imports.ui.main;
 const MessageTray = imports.ui.messageTray;
 const ModalDialog = imports.ui.modalDialog;
-const PopupMenu   = imports.ui.popupMenu;
-const BoxPointer  = imports.ui.boxpointer;
+const PopupMenu = imports.ui.popupMenu;
+const BoxPointer = imports.ui.boxpointer;
 
-const Me            = ExtensionUtils.getCurrentExtension();
-const Rtm           = Me.imports.rtm;
+const Me = ExtensionUtils.getCurrentExtension();
+const Rtm = Me.imports.rtm;
 const Authenticator = Me.imports.authenticator;
-const Notifier      = Me.imports.notifier;
-const TaskList      = Me.imports.task_list;
-const DBusService   = Me.imports.dbus_service.DBusService;
-const ActionBox     = Me.imports.action_box.ActionBox;
+const Notifier = Me.imports.notifier;
+const TaskList = Me.imports.task_list;
+const DBusService = Me.imports.dbus_service.DBusService;
+const ActionBox = Me.imports.action_box.ActionBox;
 
-const AppKey    = '7dfc8cb9f7985d712e355ee4526d5c88';
+const AppKey = '7dfc8cb9f7985d712e355ee4526d5c88';
 const AppSecret = '5792b9b6adbc3847';
 
 let rtm, dbusService, authenticator, notifier, tray, taskList;
