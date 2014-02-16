@@ -12,7 +12,7 @@ const RtmAuthenticator = new Lang.Class({
         this._queue = [];
         this._notifier = notifier;
         this._rtm = rtm;
-        this._rtm.auth_token = this._loadToken();
+        this._rtm.authToken = this._loadToken();
         this._authNotification = null;
         this._timeout_id = null;
     },
@@ -32,7 +32,7 @@ const RtmAuthenticator = new Lang.Class({
     //// Private methods ////
 
     _authenticateUser: function() {
-        if(!this._rtm.auth_token) {
+        if(!this._rtm.authToken) {
             this._displayAuthNotification();
         } else {
             this._rtm.checkCredentials({
@@ -45,8 +45,8 @@ const RtmAuthenticator = new Lang.Class({
     _continueWithCredentials: function(frob) {
         this._rtm.get('rtm.auth.getToken', { frob: frob }, Lang.bind(this, function(resp) {
             if (resp.rsp.stat == 'ok') {
-                let token            = resp.rsp.auth.token;
-                this._rtm.auth_token = token;
+                let token = resp.rsp.auth.token;
+                this._rtm.authToken = token;
 
                 if (this._authNotification) {
                     this._authNotification.destroy();
@@ -68,7 +68,7 @@ const RtmAuthenticator = new Lang.Class({
     },
 
     _createNotification: function(frob, authUrl) {
-        let title  = "RememberTheMilk - authentication";
+        let title = "RememberTheMilk - authentication";
         let banner = "You need to authenticate to proceed";
 
         this._authNotification = this._notifier.notify(title, banner, Lang.bind(this, function(notification) {
@@ -91,7 +91,7 @@ const RtmAuthenticator = new Lang.Class({
         //
         // TODO: add recover from network problems
         // TODO: redisplay notification on notification close
-        this._rtm.auth_token = null;
+        this._rtm.authToken = null;
 
         this._rtm.get('rtm.auth.getFrob', {}, Lang.bind(this, function(resp) {
             let frob    = resp.rsp.frob;

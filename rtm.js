@@ -44,8 +44,8 @@ const RememberTheMilk = new Lang.Class({
 
         params.method = method;
 
-        if (this.auth_token) {
-            params.auth_token = this.auth_token;
+        if (this.authToken) {
+            params.auth_token = this.authToken;
         }
 
         let requestUrl = this._baseUrl + this._encodeUrlParams(params, true);
