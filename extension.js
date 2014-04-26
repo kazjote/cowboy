@@ -88,7 +88,7 @@ function enable() {
 
     let menu_item = new PopupMenu.PopupBaseMenuItem({reactive: false});
 
-    menu_item.addActor(main_box, {expand: true});
+    menu_item.actor.add(main_box, {expand: true});
 
     tray.menu.addMenuItem(menu_item);
 }

@@ -1,10 +1,10 @@
 const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 
-const DBusOpenerInterface = <interface name='eu.kazjote.todo_lists.opener'>
-    <method name='open'>
-    </method>
-</interface>;
+const DBusOpenerInterface = "<node name='/eu/kazjote/todo_lists/opener'><interface name='eu.kazjote.todo_lists.opener'>" +
+    "<method name='open'>" +
+    "</method>" +
+"</interface></node>";
 
 const DBusService = new Lang.Class({
     Name: 'DBusOpener',
