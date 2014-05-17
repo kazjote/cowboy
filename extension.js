@@ -26,8 +26,7 @@ let rtm, dbusService, authenticator, notifier, tray, taskList;
 
 function enable() {
     var theme = imports.gi.Gtk.IconTheme.get_default();
-    let icon_dir = Me.dir.get_child('icons');
-    theme.append_search_path(icon_dir.get_path());
+    theme.append_search_path(Me.dir.get_path());
 
     let icon = new St.Icon({ icon_name: 'rtm-symbolic',
                              style_class: 'system-status-icon' });
