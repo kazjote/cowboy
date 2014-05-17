@@ -1,4 +1,4 @@
-{ "shell-version": ["3.8.4", "3.10.4"],
+{ "shell-version": ["3.8", "3.10"],
   "uuid": "cowboy@kazjote.eu",
   "name": "Cowboy",
   "description": "Remember the Milk integration." }
