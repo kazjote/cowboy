@@ -2,6 +2,7 @@ const Gio  = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 const St   = imports.gi.St;
+const Config = imports.misc.config;
 
 const RtmAuthenticator = new Lang.Class({
     Name: 'RtmAuthenticator',
@@ -71,15 +72,30 @@ const RtmAuthenticator = new Lang.Class({
         let title = "RememberTheMilk - authentication";
         let banner = "You need to authenticate to proceed";
 
+        log("Creating notification");
+
         this._authNotification = this._notifier.notify(title, banner, Lang.bind(this, function(notification) {
             notification.setResident(true);
-            notification.addButton('web-browser', "Authenticate");
 
-            notification.connect('action-invoked', Lang.bind(this, function() {
-                Gio.app_info_launch_default_for_uri(authUrl, global.create_app_launch_context());
+            if (Config.PACKAGE_VERSION < '3.12') {
+                notification.addButton('web-browser', "Authenticate");
 
-                this._continueWithCredentials(frob);
-            }));
+                notification.connect('action-invoked', Lang.bind(this, function() {
+                    Gio.app_info_launch_default_for_uri(authUrl, global.create_app_launch_context());
+
+                    this._continueWithCredentials(frob);
+                }));
+            } else {
+                let button = new St.Button({ style_class: 'notification-button',
+                                             label: 'Authenticate',
+                                             can_focus: true });
+
+                notification.addButton(button, Lang.bind(this, function() {
+                    Gio.app_info_launch_default_for_uri(authUrl, global.create_app_launch_context(0, -1));
+
+                    this._continueWithCredentials(frob);
+                }));
+            }
         }));
     },
 
