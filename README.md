@@ -15,9 +15,9 @@ Open in firefox https://extensions.gnome.org/extension/753/cowboy and enable the
 ```
 git clone https://github.com/kazjote/cowboy.git
 
-mddir -p $HOME/.local/share/gnome-shell/extensions
+mkdir -p $HOME/.local/share/gnome-shell/extensions
 
-ln -s `pwd`/cowboy $HOME/.local/share/gnome-shell/extensions/cowboy@kazjote.eu
+ln -s $PWD/cowboy $HOME/.local/share/gnome-shell/extensions/cowboy@kazjote.eu
 ```
 
 ## Development
