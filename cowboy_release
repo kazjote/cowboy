@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  echo "USAGE: cowbody_release <name_of_the_version>"
+  exit 1
+fi
+
+cd $HOME/projects/cowboy
+
+TAG_DIRECTORY="releases/$1"
+
+if [ -e $TAG_DIRECTORY ]; then
+  echo 'Tag directory already exists!'
+  exit 1
+fi
+
+git tag -a $1
+
+if [ $? -ne 0 ]; then
+  echo "Cancelled by user"
+  exit 1
+fi
+
+mkdir -p $TAG_DIRECTORY
+
+git clone . $TAG_DIRECTORY
+
+sleep 2 # Wait for tags file to be created
+
+rm -fr $TAG_DIRECTORY/.git
+
+RELEASE_ZIP="releases/cowboy_"$1".zip"
+
+zip -rj $RELEASE_ZIP $TAG_DIRECTORY
+
+echo "Stored release in "$RELEASE_ZIP" Remember about 'git push origin --tags'"
+
