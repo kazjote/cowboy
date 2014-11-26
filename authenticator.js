@@ -72,8 +72,6 @@ const RtmAuthenticator = new Lang.Class({
         let title = "RememberTheMilk - authentication";
         let banner = "You need to authenticate to proceed";
 
-        log("Creating notification");
-
         this._authNotification = this._notifier.notify(title, banner, Lang.bind(this, function(notification) {
             notification.setResident(true);
 
